@@ -50,21 +50,30 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
   Color _currentColor = Colors.black;
   double _strokeWidth = 5.0;
 
+  final GlobalKey _canvasKey = GlobalKey();
+
   void _addPoint(DragUpdateDetails details) {
-    final renderBox = context.findRenderObject() as RenderBox;
+    final renderBox =
+        _canvasKey.currentContext!.findRenderObject() as RenderBox;
     final localPosition = renderBox.globalToLocal(details.globalPosition);
 
-    setState(() {
-      _points.add(
-        _DrawingPoint(
-          localPosition,
-          Paint()
-            ..color = _currentColor
-            ..strokeWidth = _strokeWidth
-            ..strokeCap = StrokeCap.round,
-        ),
-      );
-    });
+    // Cek apakah posisi masih di dalam canvas
+    if (localPosition.dx >= 0 &&
+        localPosition.dy >= 0 &&
+        localPosition.dx <= renderBox.size.width &&
+        localPosition.dy <= renderBox.size.height) {
+      setState(() {
+        _points.add(
+          _DrawingPoint(
+            localPosition,
+            Paint()
+              ..color = _currentColor
+              ..strokeWidth = _strokeWidth
+              ..strokeCap = StrokeCap.round,
+          ),
+        );
+      });
+    }
   }
 
   void _endDrawing() {
@@ -86,8 +95,8 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.network(
-              'https://placehold.co/600x1200/90c7f2/ffffff?text=Latar%20Belakang',
+            child: Image.asset(
+              'assets/images/bg.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -99,6 +108,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
           SafeArea(
             child: Column(
               children: [
+                // Top Buttons
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -121,7 +131,6 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                       ),
                       Row(
                         children: [
-                          // Tombol hapus
                           InkWell(
                             onTap: _clearCanvas,
                             child: Container(
@@ -137,11 +146,9 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                             ),
                           ),
                           const SizedBox(width: 10),
-                          // Tombol tulis
                           InkWell(
                             onTap: () {
                               setState(() {
-                                // Ganti warna atau mode menggambar
                                 _currentColor = Colors.black;
                                 _strokeWidth = 5.0;
                               });
@@ -164,9 +171,11 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                   ),
                 ),
                 SizedBox(height: screenHeight * 0.05),
-                // Kanvas untuk menggambar
+
+                // Canvas Area
                 Center(
                   child: Container(
+                    key: _canvasKey,
                     width: screenWidth * 0.9,
                     height: screenHeight * 0.5,
                     decoration: BoxDecoration(
@@ -182,6 +191,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                     ),
                   ),
                 ),
+
                 SizedBox(height: screenHeight * 0.03),
                 Center(
                   child: Column(
@@ -201,18 +211,19 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                           ),
                         ),
                       ),
-                      Image.network(
-                        'https://placehold.co/200x200/png?text=Gambar+Anak',
+                      Image.asset(
+                        'assets/images/anak.png',
                         fit: BoxFit.cover,
                       ),
                     ],
                   ),
                 ),
+
                 SizedBox(height: screenHeight * 0.03),
-                // Tombol Cari Tahu
+
                 ElevatedButton(
                   onPressed: () {
-                    // Aksi untuk tombol "Cari Tahu"
+                    // Aksi tombol "Cari Tahu"
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFC7EFA3),
