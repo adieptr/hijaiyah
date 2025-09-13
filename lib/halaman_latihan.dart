@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'halaman_hasil_klasifikasi.dart';
 import 'dart:ui';
 
 class _DrawingPoint {
@@ -223,7 +224,15 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
 
                 ElevatedButton(
                   onPressed: () {
-                    // Aksi tombol "Cari Tahu"
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HalamanHasilKlasifikasi(
+                          hijaiyahLetter: "ا",
+                          hijaiyahName: "Alif", 
+                        ),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFC7EFA3),
