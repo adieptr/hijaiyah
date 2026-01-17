@@ -1,6 +1,13 @@
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'halaman_hasil_klasifikasi.dart';
 import 'dart:ui';
+import 'package:flutter/services.dart';
+import 'package:image/image.dart' as img;
+import 'classifier.dart';
+import 'package:flutter/rendering.dart';
+
 
 class _DrawingPoint {
   final Offset position;
@@ -52,13 +59,30 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
   double _strokeWidth = 5.0;
 
   final GlobalKey _canvasKey = GlobalKey();
+  Classifier? _classifier;
+  bool _loadingModel = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadModel();
+  }
+
+  Future<void> _loadModel() async {
+    setState(() => _loadingModel = true);
+    try {
+      _classifier = await Classifier.create();
+    } catch (e) {
+      debugPrint('Gagal load model: $e');
+    } finally {
+      setState(() => _loadingModel = false);
+    }
+  }
 
   void _addPoint(DragUpdateDetails details) {
-    final renderBox =
-        _canvasKey.currentContext!.findRenderObject() as RenderBox;
+    final renderBox = _canvasKey.currentContext!.findRenderObject() as RenderBox;
     final localPosition = renderBox.globalToLocal(details.globalPosition);
 
-    // Cek apakah posisi masih di dalam canvas
     if (localPosition.dx >= 0 &&
         localPosition.dy >= 0 &&
         localPosition.dx <= renderBox.size.width &&
@@ -78,13 +102,63 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
   }
 
   void _endDrawing() {
-    _points.add(null);
+    setState(() {
+      _points.add(null);
+    });
   }
 
   void _clearCanvas() {
     setState(() {
       _points = [];
     });
+  }
+
+  Future<Uint8List> _capturePngBytes() async {
+    final boundary =
+        _canvasKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+    ui.Image image = await boundary.toImage(pixelRatio: 1.0);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
+  }
+
+  Future<void> _classifyAndShow() async {
+    if (_classifier == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Model belum siap. Tunggu sebentar.')),
+      );
+      return;
+    }
+
+    // capture
+    final pngBytes = await _capturePngBytes();
+
+    // optionally, you can do further cropping / centering here.
+    Map<String, double> preds;
+    try {
+      preds = await _classifier!.predictFromPngBytes(pngBytes);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saat klasifikasi: $e')));
+      return;
+    }
+
+    // find top-1
+    final sorted = preds.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final top = sorted.first;
+    final label = top.key;
+    final confidence = top.value;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HalamanHasilKlasifikasi(
+          hijaiyahLetter: label,
+          hijaiyahName: label, // you can map label -> nicer name if labels.txt already friendly
+          confidence: confidence,
+        ),
+      ),
+    );
   }
 
   @override
@@ -175,19 +249,21 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
 
                 // Canvas Area
                 Center(
-                  child: Container(
+                  child: RepaintBoundary(
                     key: _canvasKey,
-                    width: screenWidth * 0.9,
-                    height: screenHeight * 0.5,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.black, width: 2),
-                    ),
-                    child: GestureDetector(
-                      onPanUpdate: _addPoint,
-                      onPanEnd: (details) => _endDrawing(),
-                      child: CustomPaint(
-                        painter: _DrawingPainter(_points),
+                    child: Container(
+                      width: screenWidth * 0.9,
+                      height: screenHeight * 0.5,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: GestureDetector(
+                        onPanUpdate: _addPoint,
+                        onPanEnd: (details) => _endDrawing(),
+                        child: CustomPaint(
+                          painter: _DrawingPainter(_points),
+                        ),
                       ),
                     ),
                   ),
@@ -223,17 +299,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                 SizedBox(height: screenHeight * 0.03),
 
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HalamanHasilKlasifikasi(
-                          hijaiyahLetter: "ا",
-                          hijaiyahName: "Alif", 
-                        ),
-                      ),
-                    );
-                  },
+                  onPressed: _loadingModel ? null : _classifyAndShow,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFC7EFA3),
                     padding: EdgeInsets.symmetric(
@@ -248,14 +314,20 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                     shadowColor: Colors.black.withOpacity(0.5),
                     elevation: 10,
                   ),
-                  child: Text(
-                    'Cari Tahu',
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.07,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF4A8C40),
-                    ),
-                  ),
+                  child: _loadingModel
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(),
+                        )
+                      : Text(
+                          'Cari Tahu',
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.07,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF4A8C40),
+                          ),
+                        ),
                 ),
               ],
             ),

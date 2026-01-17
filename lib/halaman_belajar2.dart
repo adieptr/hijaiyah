@@ -10,6 +10,42 @@ class HalamanBelajar2 extends StatelessWidget {
     required this.description,
   });
 
+  // Mapping huruf ke nama file gif
+  String getGifPath() {
+    final Map<String, String> gifMap = {
+      'ا': 'alif.gif',
+      'ب': 'ba.gif',
+      'ت': 'ta.gif',
+      'ث': 'tsa.gif',
+      'ج': 'jim.gif',
+      'ح': 'ha.gif',
+      'خ': 'kho.gif',
+      'د': 'dal.gif',
+      'ذ': 'dzal.gif',
+      'ر': 'ro.gif',
+      'ز': 'za.gif',
+      'س': 'sin.gif',
+      'ش': 'syin.gif',
+      'ص': 'shod.gif',
+      'ض': 'dhod.gif',
+      'ط': 'tho.gif',
+      'ظ': 'dzo.gif',
+      'ع': 'ain.gif',
+      'غ': 'ghain.gif',
+      'ف': 'fa.gif',
+      'ق': 'qof.gif',
+      'ك': 'kaf.gif',
+      'ل': 'lam.gif',
+      'م': 'mim.gif',
+      'ن': 'nun.gif',
+      'و': 'wawu.gif',
+      'ه': 'ha2.gif',
+      'ي': 'ya.gif',
+    };
+
+    return 'assets/images/hijaiyah_gif/${gifMap[hijaiyahLetter] ?? 'alif.gif'}';
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -19,15 +55,10 @@ class HalamanBelajar2 extends StatelessWidget {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              'assets/images/bg.png',
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
           ),
           Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.15),
-            ),
+            child: Container(color: Colors.black.withOpacity(0.15)),
           ),
           Center(
             child: Padding(
@@ -35,12 +66,12 @@ class HalamanBelajar2 extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Kontainer untuk menampilkan huruf
+                  // GIF cara menulis huruf
                   Container(
-                    width: screenWidth * 0.8,
-                    height: screenHeight * 0.4,
+                    width: screenWidth * 0.85,
+                    height: screenHeight * 0.45,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -51,19 +82,17 @@ class HalamanBelajar2 extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: Center(
-                      child: Text(
-                        hijaiyahLetter,
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.3,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF4A8C40),
-                        ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.asset(
+                        getGifPath(),
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),
+
                   SizedBox(height: screenHeight * 0.03),
-                  // Teks deskripsi huruf
+
                   Text(
                     description,
                     style: TextStyle(
@@ -73,7 +102,9 @@ class HalamanBelajar2 extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
+
                   SizedBox(height: screenHeight * 0.05),
+
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
