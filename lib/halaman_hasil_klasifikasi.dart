@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+<<<<<<< HEAD
 import '../db/db_helper.dart';
 import '../utils/session.dart';
+=======
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
 
 class HalamanHasilKlasifikasi extends StatefulWidget {
   final String hijaiyahLetter;
@@ -23,6 +26,7 @@ class HalamanHasilKlasifikasi extends StatefulWidget {
 class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
   final AudioPlayer _audioPlayer = AudioPlayer();
 
+<<<<<<< HEAD
   @override
   void initState() {
     super.initState();
@@ -48,6 +52,9 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
     );
   }
 
+=======
+  // Mapping nama huruf ke file audio
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
   String getAudioPath() {
     final Map<String, String> audioMap = {
       'alif': 'alif.mp3',
@@ -55,7 +62,11 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
       'ta': 'ta.mp3',
       'tsa': 'tsa.mp3',
       'jim': 'jim.mp3',
+<<<<<<< HEAD
       'kha': 'ha.mp3',
+=======
+      'ha': 'ha.mp3',
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
       'kho': 'kho.mp3',
       'dal': 'dal.mp3',
       'dzal': 'dzal.mp3',
@@ -76,7 +87,11 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
       'mim': 'mim.mp3',
       'nun': 'nun.mp3',
       'wawu': 'wawu.mp3',
+<<<<<<< HEAD
       'ha': 'ha.mp3',
+=======
+      'ha2': 'ha2.mp3', // untuk ه jika dibedakan
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
       'ya': 'ya.mp3',
     };
 
@@ -87,6 +102,7 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
   Future<void> playSound() async {
     await _audioPlayer.stop();
     await _audioPlayer.play(
+<<<<<<< HEAD
       AssetSource(getAudioPath().replaceFirst('assets/', '')),
     );
   }
@@ -111,6 +127,14 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
     return 'assets/images/hijaiyah_gif/${widget.hijaiyahName.toLowerCase()}.gif';
   }
 
+=======
+      AssetSource(
+        getAudioPath().replaceFirst('assets/', ''),
+      ),
+    );
+  }
+
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
   @override
   void dispose() {
     _audioPlayer.dispose();
@@ -129,10 +153,7 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              'assets/images/bg.png',
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
           ),
           Positioned.fill(
             child: Container(color: Colors.black.withOpacity(0.15)),
@@ -142,6 +163,7 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+<<<<<<< HEAD
                   // CARD HASIL KLASIFIKASI (Hanya tampil jika akurasi cukup/tinggi)
                   if (!isLowAccuracy)
                     Container(
@@ -156,6 +178,105 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                             spreadRadius: 5,
                             blurRadius: 7,
                             offset: const Offset(0, 3),
+=======
+                  // Kartu hasil klasifikasi
+                  Container(
+                    width: screenWidth * 0.8,
+                    padding: const EdgeInsets.all(24.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Ini Huruf :',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 20),
+
+                        Image.asset(
+                          hijaiyahImagePath,
+                          width: screenWidth * 0.4,
+                          height: screenWidth * 0.4,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Text(
+                              'Gambar tidak ditemukan',
+                              style: TextStyle(color: Colors.red),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        Text(
+                          widget.hijaiyahLetter,
+                          style: const TextStyle(
+                              fontSize: 60, fontWeight: FontWeight.bold),
+                        ),
+
+                        const SizedBox(height: 6),
+
+                        Text(
+                          widget.hijaiyahName,
+                          style: const TextStyle(
+                              fontSize: 28, fontWeight: FontWeight.bold),
+                        ),
+
+                        if (widget.confidence != null) ...[
+                          const SizedBox(height: 10),
+                          Text(
+                            'Confidence: ${(widget.confidence! * 100).toStringAsFixed(1)}%',
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: screenHeight * 0.05),
+
+                  // Tombol Dengarkan
+                  ElevatedButton(
+                    onPressed: playSound,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFC7EFA3),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.15,
+                        vertical: screenHeight * 0.025,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        side: const BorderSide(
+                            color: Color(0xFF6EDC68), width: 3),
+                      ),
+                      shadowColor: Colors.black.withOpacity(0.5),
+                      elevation: 10,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.volume_up,
+                            color: Color(0xFF4A8C40)),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Dengarkan',
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.06,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF4A8C40),
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
                           ),
                         ],
                       ),
@@ -208,7 +329,21 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                           color: isLowAccuracy ? Colors.orange : Colors.green,
                           width: 2,
                         ),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: screenHeight * 0.03),
+
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFC7EFA3),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.15,
+                        vertical: screenHeight * 0.025,
                       ),
+<<<<<<< HEAD
                       child: Column(
                         children: [
                           Text(
@@ -242,6 +377,22 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     child: const Text('Kembali'),
+=======
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                        side: const BorderSide(
+                            color: Color(0xFF6EDC68), width: 3),
+                      ),
+                    ),
+                    child: Text(
+                      'Kembali',
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.06,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF4A8C40),
+                      ),
+                    ),
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
                   ),
                 ],
               ),

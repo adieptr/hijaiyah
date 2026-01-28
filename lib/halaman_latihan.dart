@@ -4,10 +4,17 @@ import 'package:flutter/material.dart';
 import 'halaman_hasil_klasifikasi.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
+<<<<<<< HEAD
 import 'classifier.dart';
 import 'package:flutter/rendering.dart';
 
 enum DrawingMode { pencil, eraser }
+=======
+import 'package:image/image.dart' as img;
+import 'classifier.dart';
+import 'package:flutter/rendering.dart';
+
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
 
 class _DrawingPoint {
   final Offset position;
@@ -83,8 +90,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
   }
 
   void _addPoint(DragUpdateDetails details) {
-    final renderBox =
-        _canvasKey.currentContext!.findRenderObject() as RenderBox;
+    final renderBox = _canvasKey.currentContext!.findRenderObject() as RenderBox;
     final localPosition = renderBox.globalToLocal(details.globalPosition);
 
     if (localPosition.dx >= 0 &&
@@ -136,17 +142,33 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
       return;
     }
 
+<<<<<<< HEAD
     final pngBytes = await _capturePngBytes();
 
+=======
+    // capture
+    final pngBytes = await _capturePngBytes();
+
+    // optionally, you can do further cropping / centering here.
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
     Map<String, double> preds;
     try {
       preds = await _classifier!.predictFromPngBytes(pngBytes);
     } catch (e) {
+<<<<<<< HEAD
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Error saat klasifikasi: $e')));
       return;
     }
 
+=======
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saat klasifikasi: $e')));
+      return;
+    }
+
+    // find top-1
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
     final sorted = preds.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final top = sorted.first;
@@ -158,7 +180,11 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
       MaterialPageRoute(
         builder: (context) => HalamanHasilKlasifikasi(
           hijaiyahLetter: label,
+<<<<<<< HEAD
           hijaiyahName: label,
+=======
+          hijaiyahName: label, // you can map label -> nicer name if labels.txt already friendly
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
           confidence: confidence,
         ),
       ),
@@ -262,6 +288,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                     key: _canvasKey,
                     child: Container(
                       width: screenWidth * 0.9,
+<<<<<<< HEAD
                       height: screenHeight * 0.45,
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -274,6 +301,12 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                             offset: const Offset(0, 5),
                           )
                         ],
+=======
+                      height: screenHeight * 0.5,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.black, width: 2),
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
                       ),
                       child: GestureDetector(
                         onPanUpdate: _addPoint,
@@ -316,6 +349,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                     ],
                   ),
                 ),
+<<<<<<< HEAD
                 const Spacer(),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20.0),
@@ -345,6 +379,41 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                             ),
                           ),
                   ),
+=======
+
+                SizedBox(height: screenHeight * 0.03),
+
+                ElevatedButton(
+                  onPressed: _loadingModel ? null : _classifyAndShow,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFC7EFA3),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.15,
+                      vertical: screenHeight * 0.025,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      side:
+                          const BorderSide(color: Color(0xFF6EDC68), width: 3),
+                    ),
+                    shadowColor: Colors.black.withOpacity(0.5),
+                    elevation: 10,
+                  ),
+                  child: _loadingModel
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(),
+                        )
+                      : Text(
+                          'Cari Tahu',
+                          style: TextStyle(
+                            fontSize: screenWidth * 0.07,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF4A8C40),
+                          ),
+                        ),
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
                 ),
               ],
             ),

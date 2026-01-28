@@ -4,6 +4,10 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
+<<<<<<< HEAD
+=======
+// import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
 
 class Classifier {
   final Interpreter _interpreter;
@@ -20,9 +24,15 @@ class Classifier {
     String labelsPath = 'assets/model/labels.txt',
   }) async {
     final interpreter = await Interpreter.fromAsset(modelPath);
+<<<<<<< HEAD
     
     final inputTensor = interpreter.getInputTensor(0);
     final shape = inputTensor.shape; 
+=======
+    // try to read input shape from interpreter (best-effort)
+    final inputTensor = interpreter.getInputTensor(0);
+    final shape = inputTensor.shape; // e.g. [1,224,224,3]
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
     int h = 224, w = 224, c = 1;
     if (shape.length >= 4) {
       h = shape[1];
@@ -30,31 +40,55 @@ class Classifier {
       c = shape[3];
     }
 
+<<<<<<< HEAD
 
+=======
+    // load labels file
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
     final rawLabels = await rootBundle.loadString(labelsPath);
     final labels = rawLabels.split('\n').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
 
     return Classifier._(interpreter, labels, h, w, c);
   }
 
+<<<<<<< HEAD
 
   Future<Map<String, double>> predictFromPngBytes(Uint8List pngBytes) async {
     
+=======
+  /// passes a ui.Image (or PNG bytes) — here we accept PNG bytes
+  Future<Map<String, double>> predictFromPngBytes(Uint8List pngBytes) async {
+    // decode PNG to image package format
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
     img.Image? image = img.decodeImage(pngBytes);
     if (image == null) {
       throw Exception('Gagal decode image');
     }
 
+<<<<<<< HEAD
     
     img.Image converted;
     if (inputChannels == 1) {
       
+=======
+    // convert to RGB (image package uses RGBA)
+    img.Image converted;
+    if (inputChannels == 1) {
+      // convert to grayscale then resize
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
       converted = img.copyResize(img.grayscale(image), width: inputWidth, height: inputHeight);
     } else {
       converted = img.copyResize(image, width: inputWidth, height: inputHeight);
     }
 
+<<<<<<< HEAD
    
+=======
+    // prepare input tensor
+    // Most MobileNet style models expect floats normalized to [-1,1] or [0,1].
+    // We'll try [0,1] and if output seems garbage, change normalization later.
+    // Build input as List<List<List<List<double>>>> shape: [1,h,w,c]
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
     final input = List.generate(1, (_) {
       return List.generate(inputHeight, (y) {
         return List.generate(inputWidth, (x) {
@@ -76,6 +110,7 @@ class Classifier {
       });
     });
 
+<<<<<<< HEAD
     final outputTensor = _interpreter.getOutputTensor(0);
     final outShape = outputTensor.shape; 
     final numLabels = outShape.length >= 2 ? outShape[1] : _labels.length;
@@ -85,6 +120,20 @@ class Classifier {
     try {
       _interpreter.run(input, output);
     } catch (e) {
+=======
+    // prepare output buffer
+    // try to infer output shape from interpreter
+    final outputTensor = _interpreter.getOutputTensor(0);
+    final outShape = outputTensor.shape; // e.g. [1, 28] or [1, numLabels]
+    final numLabels = outShape.length >= 2 ? outShape[1] : _labels.length;
+    var output = List.filled(numLabels, 0.0).reshape([1, numLabels]);
+
+    // run inference
+    try {
+      _interpreter.run(input, output);
+    } catch (e) {
+      // try casting input to Float32List flattened (some models require that)
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
       final flat = Float32List(1 * inputHeight * inputWidth * inputChannels);
       int idx = 0;
       for (int y = 0; y < inputHeight; y++) {
@@ -98,15 +147,26 @@ class Classifier {
       _interpreter.run(inputTensor, output);
     }
 
+<<<<<<< HEAD
     
     final scores = (output[0] as List).cast<double>();
     
+=======
+    // output is 2D [1, numLabels]
+    final scores = (output[0] as List).cast<double>();
+    // map label -> score (softmax not guaranteed; if not normalized we apply softmax)
+    // check if scores already sum to ~1
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
     double sum = scores.fold(0.0, (a, b) => a + b);
     List<double> probs;
     if ((sum - 1.0).abs() < 1e-3 && scores.every((s) => s >= 0.0)) {
       probs = scores;
     } else {
+<<<<<<< HEAD
      
+=======
+      // apply softmax
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
       final max = scores.reduce((a, b) => a > b ? a : b);
       final exps = scores.map((s) => (s - max).exp()).toList();
       final expsum = exps.fold(0.0, (a, b) => a + b);
@@ -125,4 +185,8 @@ extension _Exp on double {
   double exp() => mathExp(this);
 }
 
+<<<<<<< HEAD
+=======
+// small math exp helper to avoid importing dart:math directly at top (keeps code simple)
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
 double mathExp(double x) => (x).exp();

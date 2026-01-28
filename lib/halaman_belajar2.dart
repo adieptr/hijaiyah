@@ -10,6 +10,10 @@ class HalamanBelajar2 extends StatelessWidget {
     required this.description,
   });
 
+<<<<<<< HEAD
+=======
+  // Mapping huruf ke nama file gif
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
   String getGifPath() {
     final Map<String, String> gifMap = {
       'ا': 'alif.gif',
@@ -17,7 +21,11 @@ class HalamanBelajar2 extends StatelessWidget {
       'ت': 'ta.gif',
       'ث': 'tsa.gif',
       'ج': 'jim.gif',
+<<<<<<< HEAD
       'ح': 'kha.gif',
+=======
+      'ح': 'ha.gif',
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
       'خ': 'kho.gif',
       'د': 'dal.gif',
       'ذ': 'dzal.gif',
@@ -38,7 +46,11 @@ class HalamanBelajar2 extends StatelessWidget {
       'م': 'mim.gif',
       'ن': 'nun.gif',
       'و': 'wawu.gif',
+<<<<<<< HEAD
       'ه': 'ha.gif',
+=======
+      'ه': 'ha2.gif',
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
       'ي': 'ya.gif',
     };
 
@@ -65,6 +77,10 @@ class HalamanBelajar2 extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+<<<<<<< HEAD
+=======
+                  // GIF cara menulis huruf
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
                   Container(
                     width: screenWidth * 0.85,
                     height: screenHeight * 0.45,
@@ -88,7 +104,12 @@ class HalamanBelajar2 extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   SizedBox(height: screenHeight * 0.03),
+<<<<<<< HEAD
+=======
+
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
                   Text(
                     description,
                     style: TextStyle(
@@ -98,7 +119,9 @@ class HalamanBelajar2 extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
+
                   SizedBox(height: screenHeight * 0.05),
+
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);

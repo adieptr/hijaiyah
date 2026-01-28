@@ -33,9 +33,12 @@ dependencies:
   tflite_flutter: ^0.10.4
   image: ^3.3.0
   path_provider: ^2.0.15
+<<<<<<< HEAD
   sqflite: ^2.3.0
   shared_preferences: ^2.2.2
   google_fonts: ^6.2.1
+=======
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

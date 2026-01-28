@@ -4,6 +4,7 @@ ba
 dal
 dhod
 dzal
+<<<<<<< HEAD
 dzo
 fa
 ghain
@@ -17,6 +18,20 @@ mim
 nun
 qof
 ro
+=======
+fa
+ghain
+ha
+ha2
+jim
+kaf
+kha
+lam
+mim
+nun
+qaf
+ra
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
 shod
 sin
 syin
@@ -25,4 +40,9 @@ tho
 tsa
 wawu
 ya
+<<<<<<< HEAD
 za
+=======
+za
+zho
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7

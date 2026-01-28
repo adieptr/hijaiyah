@@ -176,6 +176,7 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+<<<<<<< HEAD
   google_fonts:
     dependency: "direct main"
     description:
@@ -184,6 +185,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.3.0"
+=======
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
   http:
     dependency: transitive
     description:
@@ -352,6 +355,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.2"
+<<<<<<< HEAD
   shared_preferences:
     dependency: "direct main"
     description:
@@ -408,6 +412,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.1"
+=======
+>>>>>>> 902d497b1050f32ce8ed227cd40beec5fe5d96f7
   sky_engine:
     dependency: transitive
     description: flutter
