@@ -1,9 +1,36 @@
 import 'package:flutter/material.dart';
+import '../db/db_helper.dart';
+import '../utils/session.dart';
 import 'halaman_belajar.dart';
 import 'halaman_latihan.dart';
+import 'profil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String? fullname;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    final userId = await Session.getUser();
+    if (userId != null) {
+      final user = await DBHelper.instance.getUserById(userId);
+      setState(() {
+        fullname = user?['fullname'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +47,67 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.15),
+            child: Container(color: Colors.black.withOpacity(0.15)),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 16,
+            right: 16,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProfilPage()),
+                );
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF6EDC68),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Color(0xFFC7EFA3),
+                      child: Text(
+                        fullname != null ? fullname![0].toUpperCase() : '?',
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF4A8C40),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  if (fullname != null)
+                    Text(
+                      fullname!.split(' ').first,
+                      style: GoogleFonts.poppins(
+                        // Menggunakan font yang sama agar seragam
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        shadows: const [
+                          Shadow(
+                            color: Colors.black45,
+                            blurRadius: 4,
+                            offset: Offset(1, 1),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
           Center(
@@ -37,7 +123,7 @@ class HomeScreen extends StatelessWidget {
                       ).createShader(bounds);
                     },
                     child: Text(
-                      'Betuliah',
+                      'Betulyah',
                       style: TextStyle(
                         fontSize: screenWidth * 0.15,
                         fontWeight: FontWeight.bold,
@@ -60,7 +146,7 @@ class HomeScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const BelajarScreen()),
+                            builder: (_) => const BelajarScreen()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -70,11 +156,10 @@ class HomeScreen extends StatelessWidget {
                         vertical: screenHeight * 0.025,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
+                        borderRadius: BorderRadius.circular(30),
                         side: const BorderSide(
                             color: Color(0xFF6EDC68), width: 3),
                       ),
-                      shadowColor: Colors.black.withOpacity(0.5),
                       elevation: 10,
                     ),
                     child: Text(
@@ -92,7 +177,7 @@ class HomeScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const HalamanLatihan()),
+                            builder: (_) => const HalamanLatihan()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -102,11 +187,10 @@ class HomeScreen extends StatelessWidget {
                         vertical: screenHeight * 0.025,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
+                        borderRadius: BorderRadius.circular(30),
                         side: const BorderSide(
                             color: Color(0xFF6EDC68), width: 3),
                       ),
-                      shadowColor: Colors.black.withOpacity(0.5),
                       elevation: 10,
                     ),
                     child: Text(
