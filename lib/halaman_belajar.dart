@@ -92,6 +92,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
     ],
     [
       {'letter': 'ح', 'text': 'Belajar Menulis Huruf Kha'},
+      {'letter': 'ح', 'text': 'Belajar Menulis Huruf Kha'},
       {'letter': 'خ', 'text': 'Belajar Menulis Huruf Kho'},
       {'letter': 'د', 'text': 'Belajar Menulis Huruf Dal'},
       {'letter': 'ذ', 'text': 'Belajar Menulis Huruf Dzal'},
@@ -99,15 +100,21 @@ class _BelajarScreenState extends State<BelajarScreen> {
     ],
     [
       {'letter': 'ز', 'text': 'Belajar Menulis Huruf Za'},
+      {'letter': 'ز', 'text': 'Belajar Menulis Huruf Za'},
       {'letter': 'س', 'text': 'Belajar Menulis Huruf Sin'},
       {'letter': 'ش', 'text': 'Belajar Menulis Huruf Syin'},
+      {'letter': 'ص', 'text': 'Belajar Menulis Huruf Shod'},
+      {'letter': 'ض', 'text': 'Belajar Menulis Huruf Dhod'},
       {'letter': 'ص', 'text': 'Belajar Menulis Huruf Shod'},
       {'letter': 'ض', 'text': 'Belajar Menulis Huruf Dhod'},
     ],
     [
       {'letter': 'ط', 'text': 'Belajar Menulis Huruf Tho'},
       {'letter': 'ظ', 'text': 'Belajar Menulis Huruf Dzo'},
+      {'letter': 'ط', 'text': 'Belajar Menulis Huruf Tho'},
+      {'letter': 'ظ', 'text': 'Belajar Menulis Huruf Dzo'},
       {'letter': 'ع', 'text': 'Belajar Menulis Huruf Ain'},
+      {'letter': 'غ', 'text': 'Belajar Menulis Huruf Ghain'},
       {'letter': 'غ', 'text': 'Belajar Menulis Huruf Ghain'},
       {'letter': 'ف', 'text': 'Belajar Menulis Huruf Fa'},
     ],
@@ -140,6 +147,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
         children: [
           // Background
           Positioned.fill(
+            child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
             child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
           ),
           Positioned.fill(

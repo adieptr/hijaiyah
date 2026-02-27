@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hijaiyah/login.dart';
+import 'package:hijaiyah/login.dart';
 import 'halaman_utama.dart';
 import 'utils/session.dart';
+import 'utils/session.dart';
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());

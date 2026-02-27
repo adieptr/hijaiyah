@@ -89,8 +89,10 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
           // Background
           Positioned.fill(
             child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
+            child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
           ),
           Positioned.fill(
+            child: Container(color: Colors.black.withOpacity(0.15)),
             child: Container(color: Colors.black.withOpacity(0.15)),
           ),
           
@@ -104,7 +106,10 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
                   Container(
                     width: screenWidth * 0.85,
                     height: screenHeight * 0.45,
+                    width: screenWidth * 0.85,
+                    height: screenHeight * 0.45,
                     decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
                       color: Colors.white.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [

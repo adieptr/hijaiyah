@@ -4,14 +4,17 @@ import '../db/db_helper.dart';
 import '../utils/session.dart';
 
 class HalamanHasilKlasifikasi extends StatefulWidget {
+class HalamanHasilKlasifikasi extends StatefulWidget {
   final String hijaiyahLetter;
   final String hijaiyahName;
+  final double? confidence;
   final double? confidence;
 
   const HalamanHasilKlasifikasi({
     super.key,
     required this.hijaiyahLetter,
     required this.hijaiyahName,
+    this.confidence,
     this.confidence,
   });
 
@@ -175,15 +178,15 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
     String hijaiyahImagePath =
         'assets/images/hijaiyah/${widget.hijaiyahName.toLowerCase()}.png';
 
+    String hijaiyahImagePath =
+        'assets/images/hijaiyah/${widget.hijaiyahName.toLowerCase()}.png';
+
     return Scaffold(
       body: Stack(
         children: [
           // Background Image
           Positioned.fill(
-            child: Image.asset(
-              'assets/images/bg.png',
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
           ),
 
           Positioned.fill(
@@ -306,6 +309,8 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                     onPressed: () => Navigator.pop(context),
                     width: screenWidth,
                   ),
+                ],
+              ),
                 ],
               ),
             ),

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import '../db/db_helper.dart';
 import '../utils/session.dart';
+import '../db/db_helper.dart';
+import '../utils/session.dart';
 import 'halaman_belajar.dart';
 import 'halaman_latihan.dart';
 import 'profil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/audio_service.dart';
 
+class HomeScreen extends StatefulWidget {
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -197,6 +200,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(30),
                         side: const BorderSide(
                             color: Color(0xFF6EDC68), width: 3),
                       ),
@@ -221,6 +225,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         vertical: screenHeight * 0.025,
                       ),
                       shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
                         borderRadius: BorderRadius.circular(30),
                         side: const BorderSide(
                             color: Color(0xFF6EDC68), width: 3),

@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'halaman_hasil_klasifikasi.dart';
 import 'dart:ui';
@@ -103,6 +105,8 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
               ..strokeWidth = _strokeWidth
               ..strokeCap = StrokeCap.round
               ..isAntiAlias = true,
+              ..strokeCap = StrokeCap.round
+              ..isAntiAlias = true,
           ),
         );
       });
@@ -199,9 +203,14 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                       _buildRoundButton(
                         icon: Icons.home,
                         onTap: () => Navigator.pop(context),
+                      _buildRoundButton(
+                        icon: Icons.home,
+                        onTap: () => Navigator.pop(context),
                       ),
                       Row(
                         children: [
+                          _buildRoundButton(
+                            icon: Icons.delete,
                           _buildRoundButton(
                             icon: Icons.delete,
                             onTap: _clearCanvas,
@@ -257,6 +266,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                 SizedBox(height: screenHeight * 0.02),
                 Center(
                   child: RepaintBoundary(
+                  child: RepaintBoundary(
                     key: _canvasKey,
                     child: Container(
                       width: screenWidth * 0.9,
@@ -295,10 +305,12 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: Colors.black, width: 1.5),
+                          border: Border.all(color: Colors.black, width: 1.5),
                         ),
                         child: Text(
                           'ini huruf apa?',
                           style: TextStyle(
+                            fontSize: screenWidth * 0.045,
                             fontSize: screenWidth * 0.045,
                             fontWeight: FontWeight.bold,
                           ),
