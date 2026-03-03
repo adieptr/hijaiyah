@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hijaiyah/login.dart';
 import 'halaman_utama.dart';
+import 'utils/session.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -39,9 +42,9 @@ class AuthChecker extends StatelessWidget {
         }
 
         if (snapshot.data == true) {
-          return const HomeScreen(); // Menuju halaman utama dengan musik
+          return const HomeScreen();
         } else {
-          return LoginPage(); // Halaman login tanpa musik
+          return LoginPage(); 
         }
       },
     );

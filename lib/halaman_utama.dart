@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import '../db/db_helper.dart';
 import '../utils/session.dart';
-<<<<<<< HEAD
-=======
-import '../db/db_helper.dart';
-import '../utils/session.dart';
->>>>>>> ee6bfca77d025d9b10bde248525fb28997d5d1c5
 import 'halaman_belajar.dart';
 import 'halaman_latihan.dart';
 import 'profil.dart';
@@ -13,17 +8,12 @@ import 'package:google_fonts/google_fonts.dart';
 import '../services/audio_service.dart';
 
 class HomeScreen extends StatefulWidget {
-<<<<<<< HEAD
-=======
-class HomeScreen extends StatefulWidget {
->>>>>>> ee6bfca77d025d9b10bde248525fb28997d5d1c5
   const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-// Menambahkan WidgetsBindingObserver untuk mendeteksi siklus hidup aplikasi (minimize/exit)
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   String? fullname;
   final AudioService _audioService = AudioService();
@@ -31,30 +21,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    // Daftarkan observer
+
     WidgetsBinding.instance.addObserver(this);
     loadUser();
-    
-    // Mulai musik saat halaman pertama kali dibuka
+
     _audioService.playBackgroundMusic();
   }
 
   @override
   void dispose() {
-    // Hentikan musik dan hapus observer saat widget dihancurkan
     _audioService.stopBackgroundMusic();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  // Fungsi untuk menangani perubahan status aplikasi (Minimize / Resume)
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
-      // Jika aplikasi di-minimize atau keluar, hentikan musik
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
       _audioService.stopBackgroundMusic();
     } else if (state == AppLifecycleState.resumed) {
-      // Jika aplikasi dibuka kembali, putar musik lagi
       _audioService.playBackgroundMusic();
     }
   }
@@ -69,14 +55,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  // Fungsi pembantu untuk navigasi agar musik berhenti saat pindah dan mulai lagi saat kembali
   Future<void> _navigateTo(Widget page) async {
-    _audioService.stopBackgroundMusic(); // Hentikan musik sebelum pindah
+    _audioService.stopBackgroundMusic();
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => page),
     );
-    // Jalankan kembali musik setelah pengguna kembali ke halaman utama (setelah pop)
+
     _audioService.playBackgroundMusic();
   }
 
@@ -174,7 +159,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               foreground: Paint()
                                 ..style = PaintingStyle.stroke
                                 ..strokeWidth = 6
-                                ..color = const Color.fromARGB(255, 57, 133, 60),
+                                ..color =
+                                    const Color.fromARGB(255, 57, 133, 60),
                             ),
                           ),
                           Text(
@@ -206,10 +192,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
-<<<<<<< HEAD
-=======
-                        borderRadius: BorderRadius.circular(30),
->>>>>>> ee6bfca77d025d9b10bde248525fb28997d5d1c5
                         side: const BorderSide(
                             color: Color(0xFF6EDC68), width: 3),
                       ),
@@ -235,10 +217,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
-<<<<<<< HEAD
-=======
-                        borderRadius: BorderRadius.circular(30),
->>>>>>> ee6bfca77d025d9b10bde248525fb28997d5d1c5
                         side: const BorderSide(
                             color: Color(0xFF6EDC68), width: 3),
                       ),

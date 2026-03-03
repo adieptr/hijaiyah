@@ -92,10 +92,6 @@ class _BelajarScreenState extends State<BelajarScreen> {
     ],
     [
       {'letter': 'ح', 'text': 'Belajar Menulis Huruf Kha'},
-<<<<<<< HEAD
-=======
-      {'letter': 'ح', 'text': 'Belajar Menulis Huruf Kha'},
->>>>>>> ee6bfca77d025d9b10bde248525fb28997d5d1c5
       {'letter': 'خ', 'text': 'Belajar Menulis Huruf Kho'},
       {'letter': 'د', 'text': 'Belajar Menulis Huruf Dal'},
       {'letter': 'ذ', 'text': 'Belajar Menulis Huruf Dzal'},
@@ -103,33 +99,16 @@ class _BelajarScreenState extends State<BelajarScreen> {
     ],
     [
       {'letter': 'ز', 'text': 'Belajar Menulis Huruf Za'},
-<<<<<<< HEAD
-=======
-      {'letter': 'ز', 'text': 'Belajar Menulis Huruf Za'},
->>>>>>> ee6bfca77d025d9b10bde248525fb28997d5d1c5
       {'letter': 'س', 'text': 'Belajar Menulis Huruf Sin'},
       {'letter': 'ش', 'text': 'Belajar Menulis Huruf Syin'},
       {'letter': 'ص', 'text': 'Belajar Menulis Huruf Shod'},
       {'letter': 'ض', 'text': 'Belajar Menulis Huruf Dhod'},
-<<<<<<< HEAD
-=======
-      {'letter': 'ص', 'text': 'Belajar Menulis Huruf Shod'},
-      {'letter': 'ض', 'text': 'Belajar Menulis Huruf Dhod'},
->>>>>>> ee6bfca77d025d9b10bde248525fb28997d5d1c5
     ],
     [
       {'letter': 'ط', 'text': 'Belajar Menulis Huruf Tho'},
       {'letter': 'ظ', 'text': 'Belajar Menulis Huruf Dzo'},
-<<<<<<< HEAD
       {'letter': 'ع', 'text': 'Belajar Menulis Huruf Ain'},
       {'letter': 'غ', 'text': 'Belajar Menulis Huruf Ghain'},
-=======
-      {'letter': 'ط', 'text': 'Belajar Menulis Huruf Tho'},
-      {'letter': 'ظ', 'text': 'Belajar Menulis Huruf Dzo'},
-      {'letter': 'ع', 'text': 'Belajar Menulis Huruf Ain'},
-      {'letter': 'غ', 'text': 'Belajar Menulis Huruf Ghain'},
-      {'letter': 'غ', 'text': 'Belajar Menulis Huruf Ghain'},
->>>>>>> ee6bfca77d025d9b10bde248525fb28997d5d1c5
       {'letter': 'ف', 'text': 'Belajar Menulis Huruf Fa'},
     ],
     [
@@ -162,10 +141,6 @@ class _BelajarScreenState extends State<BelajarScreen> {
           // Background
           Positioned.fill(
             child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
-<<<<<<< HEAD
-=======
-            child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
->>>>>>> ee6bfca77d025d9b10bde248525fb28997d5d1c5
           ),
           Positioned.fill(
             child: Container(color: Colors.black.withOpacity(0.1)),
