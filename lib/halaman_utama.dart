@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import '../db/db_helper.dart';
 import '../utils/session.dart';
+<<<<<<< HEAD
+=======
+import '../db/db_helper.dart';
+import '../utils/session.dart';
+>>>>>>> ee6bfca77d025d9b10bde248525fb28997d5d1c5
 import 'halaman_belajar.dart';
 import 'halaman_latihan.dart';
 import 'profil.dart';
@@ -8,6 +13,10 @@ import 'package:google_fonts/google_fonts.dart';
 import '../services/audio_service.dart';
 
 class HomeScreen extends StatefulWidget {
+<<<<<<< HEAD
+=======
+class HomeScreen extends StatefulWidget {
+>>>>>>> ee6bfca77d025d9b10bde248525fb28997d5d1c5
   const HomeScreen({super.key});
 
   @override
@@ -197,6 +206,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
+<<<<<<< HEAD
+=======
+                        borderRadius: BorderRadius.circular(30),
+>>>>>>> ee6bfca77d025d9b10bde248525fb28997d5d1c5
                         side: const BorderSide(
                             color: Color(0xFF6EDC68), width: 3),
                       ),
@@ -222,6 +235,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
+<<<<<<< HEAD
+=======
+                        borderRadius: BorderRadius.circular(30),
+>>>>>>> ee6bfca77d025d9b10bde248525fb28997d5d1c5
                         side: const BorderSide(
                             color: Color(0xFF6EDC68), width: 3),
                       ),
