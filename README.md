@@ -1,16 +1,102 @@
-# hijaiyah
+# 📖 Aplikasi Pengenalan Huruf Hijaiyah
 
-A new Flutter project.
+Aplikasi pembelajaran huruf hijaiyah berbasis Android yang dikembangkan
+menggunakan **Flutter**.\
+Aplikasi ini dirancang untuk membantu anak-anak belajar mengenal,
+menulis, dan memahami huruf hijaiyah secara interaktif.
 
-## Getting Started
+------------------------------------------------------------------------
 
-This project is a starting point for a Flutter application.
+## ✨ Fitur Utama
 
-A few resources to get you started if this is your first Flutter project:
+-   📚 Materi belajar huruf hijaiyah (Alif -- Ya)
+-   🖊️ Panduan menulis huruf
+-   🔊 Audio pelafalan huruf
+-   🖼️ Tampilan menarik dan ramah anak
+-   📱 Berbasis Android
+-   🤖 Integrasi model Machine Learning (TensorFlow Lite) untuk
+    pengenalan huruf tulisan tangan
+-   💾 Penyimpanan data lokal menggunakan SQLite
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+------------------------------------------------------------------------
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🛠️ Teknologi yang Digunakan
+
+-   Flutter
+-   Dart
+-   TensorFlow Lite (Model .tflite)
+-   tflite_flutter
+-   SQLite (sqflite)
+-   Shared Preferences
+-   Audioplayers
+-   Google Fonts
+
+------------------------------------------------------------------------
+
+## 📂 Struktur Folder Penting
+
+assets/ ├── images/\
+├── hijaiyah_sound/\
+├── audio/\
+├── model/ │ ├── hijaiyah_model.tflite │ └── labels.txt
+
+------------------------------------------------------------------------
+
+## 🚀 Cara Menjalankan Project
+
+### 1️⃣ Clone Repository
+
+git clone https://github.com/username/hijaiyah.git\
+cd hijaiyah
+
+### 2️⃣ Install Dependency
+
+flutter pub get
+
+### 3️⃣ Jalankan Aplikasi
+
+flutter run
+
+------------------------------------------------------------------------
+
+## 🤖 Model Machine Learning
+
+Model pengenalan huruf menggunakan file:
+
+hijaiyah_model.tflite
+
+Model ini digunakan untuk mendeteksi huruf hijaiyah dari gambar yang
+diinput pengguna.
+
+------------------------------------------------------------------------
+
+## 📱 Platform
+
+✔ Android\
+
+------------------------------------------------------------------------
+
+## 🎯 Tujuan Pengembangan
+
+Aplikasi ini dikembangkan untuk:
+
+-   Membantu anak-anak mengenal huruf hijaiyah sejak dini
+-   Mendukung proses pembelajaran di Madrasah Diniyah
+-   Menggabungkan teknologi mobile dan machine learning dalam pendidikan
+
+------------------------------------------------------------------------
+
+## 👨‍💻 Developer
+
+Adi Putra\
+Programmer Magang
+
+------------------------------------------------------------------------
+
+## 📄 Lisensi
+
+Project ini dibuat untuk tujuan pembelajaran dan penelitian.
+
+------------------------------------------------------------------------
+
+⭐ Jika project ini bermanfaat, jangan lupa beri bintang di repository!
