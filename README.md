@@ -1,6 +1,6 @@
 # 📖 Aplikasi Pengenalan Huruf Hijaiyah
 
-![Betulyah](screenshot/Betulyah.png)
+![ Betulyah ](assets/screenshot/Betulyah.png)
 
 Aplikasi pembelajaran huruf hijaiyah berbasis Android yang dikembangkan
 menggunakan **Flutter**.\
