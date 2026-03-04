@@ -1,5 +1,7 @@
 # 📖 Aplikasi Pengenalan Huruf Hijaiyah
 
+![Betulyah](screenshot/Betulyah.png)
+
 Aplikasi pembelajaran huruf hijaiyah berbasis Android yang dikembangkan
 menggunakan **Flutter**.\
 Aplikasi ini dirancang untuk membantu anak-anak belajar mengenal,
@@ -33,15 +35,6 @@ menulis, dan memahami huruf hijaiyah secara interaktif.
 
 ------------------------------------------------------------------------
 
-## 📂 Struktur Folder Penting
-
-assets/ ├── images/\
-├── hijaiyah_sound/\
-├── audio/\
-├── model/ │ ├── hijaiyah_model.tflite │ └── labels.txt
-
-------------------------------------------------------------------------
-
 ## 🚀 Cara Menjalankan Project
 
 ### 1️⃣ Clone Repository
@@ -72,7 +65,7 @@ diinput pengguna.
 
 ## 📱 Platform
 
-✔ Android\
+✔ Android
 
 ------------------------------------------------------------------------
 
@@ -92,11 +85,3 @@ Adi Putra\
 Programmer Magang
 
 ------------------------------------------------------------------------
-
-## 📄 Lisensi
-
-Project ini dibuat untuk tujuan pembelajaran dan penelitian.
-
-------------------------------------------------------------------------
-
-⭐ Jika project ini bermanfaat, jangan lupa beri bintang di repository!
