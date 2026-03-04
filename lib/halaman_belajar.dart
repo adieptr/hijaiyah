@@ -28,39 +28,40 @@ class HijaiyahButton extends StatelessWidget {
           );
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFC7EFA3),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          backgroundColor: const Color(0xFFC5E99B),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(50.0),
-            side: const BorderSide(color: Color(0xFF6EDC68), width: 3),
+            side: const BorderSide(color: Color(0xFF8BC34A), width: 2.5),
           ),
-          shadowColor: Colors.black.withOpacity(0.5),
-          elevation: 10,
+          elevation: 6,
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
               decoration: BoxDecoration(
                 color: const Color(0xFF6EDC68),
-                borderRadius: BorderRadius.circular(40),
+                borderRadius: BorderRadius.circular(30),
               ),
               child: Text(
                 hijaiyahLetter,
                 style: const TextStyle(
-                  fontSize: 28,
+                  fontSize: 26,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
             ),
             const SizedBox(width: 20),
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF4A8C40),
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF4A7C44),
+                ),
               ),
             ),
           ],
@@ -79,6 +80,8 @@ class BelajarScreen extends StatefulWidget {
 
 class _BelajarScreenState extends State<BelajarScreen> {
   final PageController _pageController = PageController();
+  int currentPage = 0;
+
   final List<List<Map<String, String>>> pages = [
     [
       {'letter': 'ا', 'text': 'Belajar Menulis Huruf Alif'},
@@ -88,24 +91,24 @@ class _BelajarScreenState extends State<BelajarScreen> {
       {'letter': 'ج', 'text': 'Belajar Menulis Huruf Jim'},
     ],
     [
-      {'letter': 'ح', 'text': 'Belajar Menulis Huruf Ha'},
+      {'letter': 'ح', 'text': 'Belajar Menulis Huruf Kha'},
       {'letter': 'خ', 'text': 'Belajar Menulis Huruf Kho'},
       {'letter': 'د', 'text': 'Belajar Menulis Huruf Dal'},
       {'letter': 'ذ', 'text': 'Belajar Menulis Huruf Dzal'},
       {'letter': 'ر', 'text': 'Belajar Menulis Huruf Ro'},
     ],
     [
-      {'letter': 'ز', 'text': 'Belajar Menulis Huruf Zay'},
+      {'letter': 'ز', 'text': 'Belajar Menulis Huruf Za'},
       {'letter': 'س', 'text': 'Belajar Menulis Huruf Sin'},
       {'letter': 'ش', 'text': 'Belajar Menulis Huruf Syin'},
-      {'letter': 'ص', 'text': 'Belajar Menulis Huruf Sod'},
-      {'letter': 'ض', 'text': 'Belajar Menulis Huruf Dod'},
+      {'letter': 'ص', 'text': 'Belajar Menulis Huruf Shod'},
+      {'letter': 'ض', 'text': 'Belajar Menulis Huruf Dhod'},
     ],
     [
-      {'letter': 'ط', 'text': 'Belajar Menulis Huruf To'},
-      {'letter': 'ظ', 'text': 'Belajar Menulis Huruf Zo'},
+      {'letter': 'ط', 'text': 'Belajar Menulis Huruf Tho'},
+      {'letter': 'ظ', 'text': 'Belajar Menulis Huruf Dzo'},
       {'letter': 'ع', 'text': 'Belajar Menulis Huruf Ain'},
-      {'letter': 'غ', 'text': 'Belajar Menulis Huruf Ghin'},
+      {'letter': 'غ', 'text': 'Belajar Menulis Huruf Ghain'},
       {'letter': 'ف', 'text': 'Belajar Menulis Huruf Fa'},
     ],
     [
@@ -122,18 +125,6 @@ class _BelajarScreenState extends State<BelajarScreen> {
     ],
   ];
 
-  int currentPage = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController.addListener(() {
-      setState(() {
-        currentPage = _pageController.page!.round();
-      });
-    });
-  }
-
   @override
   void dispose() {
     _pageController.dispose();
@@ -142,160 +133,143 @@ class _BelajarScreenState extends State<BelajarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              'assets/images/bg.png',
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
           ),
           Positioned.fill(
-            child: Container(
-              color: Colors.black.withOpacity(0.15),
-            ),
+            child: Container(color: Colors.black.withOpacity(0.1)),
           ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(height: screenHeight * 0.05), // Margin atas
-                  Expanded(
-                    child: PageView.builder(
-                      controller: _pageController,
-                      itemCount: pages.length,
-                      itemBuilder: (context, index) {
-                        return ListView(
-                          shrinkWrap: true,
-                          children: pages[index].map((item) {
-                            return HijaiyahButton(
-                              hijaiyahLetter: item['letter']!,
-                              text: item['text']!,
-                            );
-                          }).toList(),
+          Column(
+            children: [
+              const SizedBox(height: 60),
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: pages.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      currentPage = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    return ListView.builder(
+                      padding: const EdgeInsets.only(top: 10),
+                      itemCount: pages[index].length,
+                      itemBuilder: (context, i) {
+                        return HijaiyahButton(
+                          hijaiyahLetter: pages[index][i]['letter']!,
+                          text: pages[index][i]['text']!,
                         );
                       },
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.03),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          if (currentPage > 0) {
-                            _pageController.previousPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeIn,
-                            );
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFC7EFA3),
-                            borderRadius: BorderRadius.circular(50),
-                            border: Border.all(
-                                color: const Color(0xFF6EDC68), width: 3),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(Icons.arrow_back_ios,
-                              size: 28, color: Color(0xFF4A8C40)),
-                        ),
-                      ),
-
-                      SizedBox(width: screenWidth * 0.05),
-
-                      // Teks indikator halaman
-                      Text(
-                        'hal ${currentPage + 1} - ${pages.length}',
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.05,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-
-                      SizedBox(width: screenWidth * 0.05),
-
-                      InkWell(
-                        onTap: () {
-                          if (currentPage < pages.length - 1) {
-                            _pageController.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeIn,
-                            );
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFC7EFA3),
-                            borderRadius: BorderRadius.circular(50),
-                            border: Border.all(
-                                color: const Color(0xFF6EDC68), width: 3),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(Icons.arrow_forward_ios,
-                              size: 28, color: Color(0xFF4A8C40)),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: screenHeight * 0.03),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFC7EFA3),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.15,
-                        vertical: screenHeight * 0.025,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        side: const BorderSide(
-                            color: Color(0xFF6EDC68), width: 3),
-                      ),
-                      shadowColor: Colors.black.withOpacity(0.5),
-                      elevation: 10,
-                    ),
-                    child: Text(
-                      'Menu',
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.07,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF4A8C40),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.05), // Margin bawah
-                ],
+                    );
+                  },
+                ),
               ),
-            ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildArrowButton(
+                          icon: Icons.arrow_back_ios_new,
+                          onPressed: () {
+                            if (currentPage > 0) {
+                              _pageController.previousPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            }
+                          },
+                        ),
+                        const SizedBox(width: 25),
+                        Text(
+                          'hal ${currentPage + 1} - ${pages.length}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(1, 1),
+                                blurRadius: 3.0,
+                                color: Colors.black,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 25),
+                        _buildArrowButton(
+                          icon: Icons.arrow_forward_ios,
+                          onPressed: () {
+                            if (currentPage < pages.length - 1) {
+                              _pageController.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 50),
+                    SizedBox(
+                      width: screenWidth * 0.55,
+                      height: 65,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFC5E99B),
+                          foregroundColor: const Color(0xFF4A7C44),
+                          elevation: 8,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(35),
+                            side: const BorderSide(
+                                color: Color(0xFF8BC34A), width: 3),
+                          ),
+                        ),
+                        child: const Text(
+                          'Menu',
+                          style: TextStyle(
+                              fontSize: 26, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildArrowButton(
+      {required IconData icon, required VoidCallback onPressed}) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFC5E99B),
+          shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFF8BC34A), width: 3),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 4,
+              offset: const Offset(0, 3),
+            )
+          ],
+        ),
+        child: Icon(icon, color: const Color(0xFF4A7C44), size: 22),
       ),
     );
   }
