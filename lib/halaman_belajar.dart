@@ -30,23 +30,30 @@ class HijaiyahButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFC5E99B),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          backgroundColor: const Color(0xFFC5E99B),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(50.0),
             side: const BorderSide(color: Color(0xFF8BC34A), width: 2.5),
+            side: const BorderSide(color: Color(0xFF8BC34A), width: 2.5),
           ),
+          elevation: 6,
           elevation: 6,
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
               decoration: BoxDecoration(
                 color: const Color(0xFF6EDC68),
+                borderRadius: BorderRadius.circular(30),
                 borderRadius: BorderRadius.circular(30),
               ),
               child: Text(
                 hijaiyahLetter,
                 style: const TextStyle(
+                  fontSize: 26,
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -54,6 +61,14 @@ class HijaiyahButton extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 20),
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF4A7C44),
+                ),
             Expanded(
               child: Text(
                 text,
@@ -82,6 +97,8 @@ class _BelajarScreenState extends State<BelajarScreen> {
   final PageController _pageController = PageController();
   int currentPage = 0;
 
+  int currentPage = 0;
+
   final List<List<Map<String, String>>> pages = [
     [
       {'letter': 'ا', 'text': 'Belajar Menulis Huruf Alif'},
@@ -92,6 +109,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
     ],
     [
       {'letter': 'ح', 'text': 'Belajar Menulis Huruf Kha'},
+      {'letter': 'ح', 'text': 'Belajar Menulis Huruf Kha'},
       {'letter': 'خ', 'text': 'Belajar Menulis Huruf Kho'},
       {'letter': 'د', 'text': 'Belajar Menulis Huruf Dal'},
       {'letter': 'ذ', 'text': 'Belajar Menulis Huruf Dzal'},
@@ -99,15 +117,21 @@ class _BelajarScreenState extends State<BelajarScreen> {
     ],
     [
       {'letter': 'ز', 'text': 'Belajar Menulis Huruf Za'},
+      {'letter': 'ز', 'text': 'Belajar Menulis Huruf Za'},
       {'letter': 'س', 'text': 'Belajar Menulis Huruf Sin'},
       {'letter': 'ش', 'text': 'Belajar Menulis Huruf Syin'},
+      {'letter': 'ص', 'text': 'Belajar Menulis Huruf Shod'},
+      {'letter': 'ض', 'text': 'Belajar Menulis Huruf Dhod'},
       {'letter': 'ص', 'text': 'Belajar Menulis Huruf Shod'},
       {'letter': 'ض', 'text': 'Belajar Menulis Huruf Dhod'},
     ],
     [
       {'letter': 'ط', 'text': 'Belajar Menulis Huruf Tho'},
       {'letter': 'ظ', 'text': 'Belajar Menulis Huruf Dzo'},
+      {'letter': 'ط', 'text': 'Belajar Menulis Huruf Tho'},
+      {'letter': 'ظ', 'text': 'Belajar Menulis Huruf Dzo'},
       {'letter': 'ع', 'text': 'Belajar Menulis Huruf Ain'},
+      {'letter': 'غ', 'text': 'Belajar Menulis Huruf Ghain'},
       {'letter': 'غ', 'text': 'Belajar Menulis Huruf Ghain'},
       {'letter': 'ف', 'text': 'Belajar Menulis Huruf Fa'},
     ],
@@ -138,10 +162,13 @@ class _BelajarScreenState extends State<BelajarScreen> {
     return Scaffold(
       body: Stack(
         children: [
+          // Background
           Positioned.fill(
+            child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
             child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
           ),
           Positioned.fill(
+            child: Container(color: Colors.black.withOpacity(0.1)),
             child: Container(color: Colors.black.withOpacity(0.1)),
           ),
           Column(
@@ -239,14 +266,77 @@ class _BelajarScreenState extends State<BelajarScreen> {
                           style: TextStyle(
                               fontSize: 26, fontWeight: FontWeight.bold),
                         ),
+                        ),
+                        const SizedBox(width: 25),
+                        _buildArrowButton(
+                          icon: Icons.arrow_forward_ios,
+                          onPressed: () {
+                            if (currentPage < pages.length - 1) {
+                              _pageController.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 50),
+                    SizedBox(
+                      width: screenWidth * 0.55,
+                      height: 65,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFC5E99B),
+                          foregroundColor: const Color(0xFF4A7C44),
+                          elevation: 8,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(35),
+                            side: const BorderSide(
+                                color: Color(0xFF8BC34A), width: 3),
+                          ),
+                        ),
+                        child: const Text(
+                          'Menu',
+                          style: TextStyle(
+                              fontSize: 26, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
             ],
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildArrowButton(
+      {required IconData icon, required VoidCallback onPressed}) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFC5E99B),
+          shape: BoxShape.circle,
+          border: Border.all(color: const Color(0xFF8BC34A), width: 3),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 4,
+              offset: const Offset(0, 3),
+            )
+          ],
+        ),
+        child: Icon(icon, color: const Color(0xFF4A7C44), size: 22),
       ),
     );
   }

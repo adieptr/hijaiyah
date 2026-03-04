@@ -177,10 +177,7 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              'assets/images/bg.png',
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
           ),
           Positioned.fill(
             child: Container(color: Colors.black.withOpacity(0.1)),
