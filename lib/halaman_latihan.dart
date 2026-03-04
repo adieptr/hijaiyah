@@ -6,7 +6,6 @@ import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'classifier.dart';
 import 'package:flutter/rendering.dart';
-import 'halaman_utama.dart';
 
 enum DrawingMode { pencil, eraser }
 
