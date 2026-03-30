@@ -19,6 +19,7 @@ class DBHelper {
       path,
       version: 1,
       onCreate: (db, version) async {
+        // Tabel User
         await db.execute('''
           CREATE TABLE users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,6 +29,7 @@ class DBHelper {
           )
         ''');
 
+        // Tabel Progress (Sekarang menyimpan histori, bukan ditimpa)
         await db.execute('''
           CREATE TABLE progress (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,6 +42,8 @@ class DBHelper {
       },
     );
   }
+
+  // --- Fungsi Autentikasi ---
 
   Future<int> registerUser(Map<String, dynamic> data) async {
     final db = await database;
@@ -71,39 +75,43 @@ class DBHelper {
     return res.isNotEmpty ? res.first : null;
   }
 
+  // --- Fungsi Progres Belajar ---
+
+  // Selalu INSERT data baru agar kita punya histori untuk cek '3 kali berturut-turut'
   Future<void> saveProgress(int userId, String huruf, double accuracy) async {
     final db = await database;
+    await db.insert('progress', {
+      'user_id': userId,
+      'huruf': huruf,
+      'accuracy': accuracy,
+    });
+  }
 
-    final existing = await db.query(
+  // Mengambil N data terakhir untuk satu huruf tertentu (untuk cek mastery di Canvas)
+  Future<List<Map<String, dynamic>>> getRecentProgress(int userId, String huruf, {int limit = 3}) async {
+    final db = await database;
+    return await db.query(
       'progress',
       where: 'user_id = ? AND huruf = ?',
       whereArgs: [userId, huruf],
+      orderBy: 'id DESC', // Ambil ID terbesar (paling baru)
+      limit: limit,
     );
-
-    if (existing.isEmpty) {
-      await db.insert('progress', {
-        'user_id': userId,
-        'huruf': huruf,
-        'accuracy': accuracy,
-      });
-    } else {
-      await db.update(
-        'progress',
-        {'accuracy': accuracy},
-        where: 'user_id = ? AND huruf = ?',
-        whereArgs: [userId, huruf],
-      );
-    }
   }
 
+  // Mengambil progres terbaru saja untuk setiap huruf (untuk ditampilkan di halaman Dashboard/List)
   Future<List<Map<String, dynamic>>> getProgress(int userId) async {
     final db = await database;
-
-    return await db.query(
-      'progress',
-      where: 'user_id = ?',
-      whereArgs: [userId],
-      orderBy: 'huruf ASC',
-    );
+    
+    // Menggunakan rawQuery untuk mengambil baris terakhir (MAX id) untuk setiap huruf unik
+    return await db.rawQuery('''
+      SELECT p1.* FROM progress p1
+      INNER JOIN (
+        SELECT MAX(id) as max_id FROM progress 
+        WHERE user_id = ? 
+        GROUP BY huruf
+      ) p2 ON p1.id = p2.max_id
+      ORDER BY p1.huruf ASC
+    ''', [userId]);
   }
 }
