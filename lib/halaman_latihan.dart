@@ -1,12 +1,14 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'halaman_hasil_klasifikasi.dart';
-import 'dart:ui';
-import 'package:flutter/services.dart';
+import 'profil.dart';
+import '../db/db_helper.dart';
+import '../utils/session.dart';
 import 'classifier.dart';
 import 'package:flutter/rendering.dart';
-import 'dart:math' as math; // Ditambahkan untuk perhitungan trigonometri
+import 'dart:math' as math;
 
 enum DrawingMode { pencil, eraser }
 
@@ -31,16 +33,15 @@ class _DrawingPainter extends CustomPainter {
   _DrawingPainter(this.strokes);
 
   @override
-  void paint(Canvas canvas, Size size) {
+  void paint(ui.Canvas canvas, Size size) {
     for (var stroke in strokes) {
       if (stroke.points.isEmpty) continue;
 
       final paint = Paint()
         ..color = stroke.color
-        ..style = PaintingStyle.fill // Menggunakan fill untuk menggambar "nib" kaligrafi
+        ..style = PaintingStyle.fill
         ..isAntiAlias = true;
 
-      // Jika mode penghapus, kita tetap menggunakan style stroke standar agar lebih bersih
       if (stroke.mode == DrawingMode.eraser) {
         final eraserPaint = Paint()
           ..color = stroke.color
@@ -58,12 +59,9 @@ class _DrawingPainter extends CustomPainter {
         continue;
       }
 
-      // Logika Brush Kaligrafi (Ribbon Effect)
-      // Sudut nib kaligrafi (biasanya 45 derajat atau -pi/4)
       const double angle = -math.pi / 4; 
       final double nibWidth = stroke.width;
 
-      // Vektor offset untuk bentuk mata pena
       final Offset nibOffset = Offset(
         math.cos(angle) * (nibWidth / 2),
         math.sin(angle) * (nibWidth / 2),
@@ -73,7 +71,6 @@ class _DrawingPainter extends CustomPainter {
         final p1 = stroke.points[i];
         final p2 = stroke.points[i + 1];
 
-        // Hitung 4 titik poligon yang menghubungkan dua posisi nib
         final path = Path()
           ..moveTo(p1.dx - nibOffset.dx, p1.dy - nibOffset.dy)
           ..lineTo(p1.dx + nibOffset.dx, p1.dy + nibOffset.dy)
@@ -84,7 +81,6 @@ class _DrawingPainter extends CustomPainter {
         canvas.drawPath(path, paint);
       }
       
-      // Gambar "titik" di awal dan akhir jika hanya satu titik
       if (stroke.points.length == 1) {
         final p = stroke.points.first;
         final path = Path()
@@ -112,9 +108,10 @@ class HalamanLatihan extends StatefulWidget {
 class _HalamanLatihanState extends State<HalamanLatihan> {
   List<Stroke> _strokes = [];
   List<Stroke> _redoStack = [];
+  String? fullname;
 
   DrawingMode _currentMode = DrawingMode.pencil;
-  double _strokeWidth = 20; // Sedikit lebih tebal agar efek kaligrafi terasa
+  double _strokeWidth = 20;
   final Color _pencilColor = Colors.black;
   final Color _eraserColor = Colors.white;
 
@@ -127,6 +124,19 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
   void initState() {
     super.initState();
     _loadModel();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    final userId = await Session.getUser();
+    if (userId != null) {
+      final user = await DBHelper.instance.getUserById(userId);
+      if (mounted) {
+        setState(() {
+          fullname = user?['fullname'];
+        });
+      }
+    }
   }
 
   Future<void> _loadModel() async {
@@ -205,6 +215,83 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
     });
   }
 
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: Color(0xFF6EDC68), width: 2),
+          ),
+          backgroundColor: const Color(0xFFC7EFA3),
+          title: Text(
+            'Bantuan Latihan',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF4A8C40),
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHelpItem(
+                'Cara Menggambar:',
+                'Gunakan jari Anda pada area putih untuk menulis huruf hijaiyah.',
+              ),
+              const SizedBox(height: 12),
+              _buildHelpItem(
+                'Tombol Aksi:',
+                'Gunakan ikon pensil untuk menulis, penghapus untuk menghapus, dan ikon sampah untuk membersihkan layar.',
+              ),
+              const SizedBox(height: 12),
+              _buildHelpItem(
+                'Cek Tulisan:',
+                'Setelah selesai, tekan tombol "Cek Tulisan" untuk memverifikasi huruf yang Anda buat.',
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Mengerti',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF4A8C40),
+                ),
+              ),
+            ),
+          ],
+        );
+      }
+    );
+  }
+
+  Widget _buildHelpItem(String title, String description) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: const Color(0xFF4A8C40),
+          ),
+        ),
+        Text(
+          description,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+
   Future<Uint8List> _capturePngBytes() async {
     final boundary = _canvasKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
     ui.Image image = await boundary.toImage(pixelRatio: 1.0);
@@ -259,6 +346,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
+          // Background Image
           Positioned.fill(
             child: Image.asset(
               'assets/images/bg.png',
@@ -268,6 +356,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
             ),
           ),
           Positioned.fill(child: Container(color: Colors.black.withOpacity(0.15))),
+          
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -279,6 +368,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          const SizedBox(height: 80), // Jarak agar tidak tertutup tombol fixed
                           // Toolbar
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -366,14 +456,14 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                           SizedBox(height: screenHeight * 0.04),
                           // Tombol Aksi
                           _buildActionButton(
-                            text: 'Cari Tahu',
+                            text: 'Cek Tulisan',
                             onTap: _loadingModel ? null : _classifyAndShow,
                             isLoading: _loadingModel,
                           ),
                           const SizedBox(height: 12),
                           _buildActionButton(
                             text: 'Menu',
-                            onTap: () =>  Navigator.popUntil(context, (route) => route.isFirst),
+                            onTap: () => Navigator.popUntil(context, (route) => route.isFirst),
                           ),
                           SizedBox(height: screenHeight * 0.05),
                         ],
@@ -382,6 +472,125 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                   ),
                 );
               },
+            ),
+          ),
+
+          // TOMBOL BANTUAN (Pojok Kiri Atas)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 16,
+            left: 16,
+            child: GestureDetector(
+              onTap: _showHelpDialog,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6EDC68),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Color(0xFFC7EFA3),
+                      child: Text(
+                        '?',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF4A8C40),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Bantuan',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      shadows: const [
+                        Shadow(
+                          color: Colors.black45,
+                          blurRadius: 4,
+                          offset: Offset(1, 1),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // TOMBOL PROFIL (Pojok Kanan Atas)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 16,
+            right: 16,
+            child: GestureDetector(
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProfilPage()),
+                );
+                loadUser(); // Refresh data inisial saat kembali
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6EDC68),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 22,
+                      backgroundColor: const Color(0xFFC7EFA3),
+                      child: Text(
+                        fullname != null ? fullname![0].toUpperCase() : '?',
+                        style: GoogleFonts.poppins(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF4A8C40),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  if (fullname != null)
+                    Text(
+                      fullname!.split(' ').first,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        shadows: const [
+                          Shadow(
+                            color: Colors.black45,
+                            blurRadius: 4,
+                            offset: Offset(1, 1),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ],

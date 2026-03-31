@@ -2,7 +2,11 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'halaman_latihan.dart';
+import 'profil.dart';
+import '../db/db_helper.dart';
+import '../utils/session.dart';
 import 'dart:typed_data';
 import 'dart:math' as math;
 
@@ -111,12 +115,28 @@ class _HalamanTracingState extends State<HalamanTracing> {
   bool _isDrawing = false;
   bool _isEraser = false;
   bool _isCalculating = false;
+  String? fullname;
 
   final GlobalKey _canvasKey = GlobalKey();
-
-  // PERBAIKAN: Key template diletakkan di LUAR Opacity
-  // agar toImage() menangkap pixel dengan alpha penuh (tidak direduksi 0.25)
   final GlobalKey _templateKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    final userId = await Session.getUser();
+    if (userId != null) {
+      final user = await DBHelper.instance.getUserById(userId);
+      if (mounted) {
+        setState(() {
+          fullname = user?['fullname'];
+        });
+      }
+    }
+  }
 
   void _onPanStart(DragStartDetails details) {
     HapticFeedback.lightImpact();
@@ -168,6 +188,78 @@ class _HalamanTracingState extends State<HalamanTracing> {
         _strokes.clear();
         _redoStack.clear();
       });
+
+  void _showHelpDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: Color(0xFF6EDC68), width: 2),
+            ),
+            backgroundColor: const Color(0xFFC7EFA3),
+            title: Text(
+              'Bantuan Tracing',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF4A8C40),
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHelpItem(
+                  'Tujuan:',
+                  'Tebalkan huruf hijaiyah yang muncul samar di layar sesuai dengan bentuknya.',
+                ),
+                const SizedBox(height: 12),
+                _buildHelpItem(
+                  'Penilaian:',
+                  'Skor dihitung berdasarkan seberapa akurat coretan Anda mengikuti pola huruf tersebut.',
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Mengerti',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF4A8C40),
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
+  Widget _buildHelpItem(String title, String description) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: const Color(0xFF4A8C40),
+          ),
+        ),
+        Text(
+          description,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+
   Future<void> _navigateTo(Widget page) async {
     await Navigator.push(
       context,
@@ -191,7 +283,6 @@ class _HalamanTracingState extends State<HalamanTracing> {
     try {
       const double scanRatio = 0.5;
 
-      // Ambil gambar canvas user (coretan)
       final RenderRepaintBoundary userBoundary = _canvasKey.currentContext!
           .findRenderObject() as RenderRepaintBoundary;
       final ui.Image userImg =
@@ -199,8 +290,6 @@ class _HalamanTracingState extends State<HalamanTracing> {
       final ByteData? userBytes =
           await userImg.toByteData(format: ui.ImageByteFormat.rawRgba);
 
-      // Ambil gambar template — RepaintBoundary ada di LUAR Opacity
-      // sehingga pixel alpha mencerminkan nilai asli gambar PNG
       final RenderRepaintBoundary tempBoundary = _templateKey.currentContext!
           .findRenderObject() as RenderRepaintBoundary;
       final ui.Image tempImg =
@@ -213,9 +302,6 @@ class _HalamanTracingState extends State<HalamanTracing> {
         return;
       }
 
-      // rawRgba = urutan byte: R G B A per pixel
-      // Dalam Uint8List: index 3, 7, 11, ... adalah alpha
-      // Kita pakai Uint8List (bukan Uint32List) agar byte order tidak ambigu
       final Uint8List userPixels = userBytes.buffer.asUint8List();
       final Uint8List tempPixels = tempBytes.buffer.asUint8List();
 
@@ -224,53 +310,25 @@ class _HalamanTracingState extends State<HalamanTracing> {
       final int userWidth = userImg.width;
       final int userHeight = userImg.height;
 
-      // Toleransi posisi untuk recall (seberapa dekat coretan ke huruf)
-      const int recallTolerance = 0;
-      // Toleransi untuk precision (seberapa jauh coretan boleh dari huruf)
-      const int precisionTolerance = 0;
-
-      // ── PASS 1: RECALL ───────────────────────────────────────────────────
-      // Dari semua pixel huruf, berapa yang tertutup coretan user?
       int totalTemplatePixels = 0;
       int coveredByUser = 0;
 
       for (int y = 0; y < tempHeight; y++) {
         for (int x = 0; x < tempWidth; x++) {
-          // Alpha ada di byte ke-4 setiap pixel (index: pixelIndex * 4 + 3)
           final int tByteIdx = (y * tempWidth + x) * 4;
           if (tByteIdx + 3 >= tempPixels.length) continue;
-
-          final int alphaTemp = tempPixels[tByteIdx + 3];
-
-          // Threshold rendah (>30) karena gambar PNG huruf mungkin punya
-          // anti-alias di tepinya. Pixel inti huruf biasanya alpha > 200.
-          if (alphaTemp < 30) continue;
+          if (tempPixels[tByteIdx + 3] < 30) continue;
 
           totalTemplatePixels++;
 
-          bool hit = false;
-          outerRecall:
-          for (int dy = -recallTolerance; dy <= recallTolerance; dy++) {
-            for (int dx = -recallTolerance; dx <= recallTolerance; dx++) {
-              final int nx = x + dx;
-              final int ny = y + dy;
-              if (nx < 0 || nx >= userWidth || ny < 0 || ny >= userHeight) {
-                continue;
-              }
-              final int uByteIdx = (ny * userWidth + nx) * 4;
-              if (uByteIdx + 3 >= userPixels.length) continue;
-              if (userPixels[uByteIdx + 3] > 30) {
-                hit = true;
-                break outerRecall;
-              }
-            }
+          final int uByteIdx = (y * userWidth + x) * 4;
+          if (uByteIdx + 3 < userPixels.length &&
+              userPixels[uByteIdx + 3] > 30) {
+            coveredByUser++;
           }
-          if (hit) coveredByUser++;
         }
       }
 
-      // ── PASS 2: PRECISION ────────────────────────────────────────────────
-      // Dari semua pixel yang user gambar, berapa yang berada di atas huruf?
       int totalUserPixels = 0;
       int userOnLetter = 0;
 
@@ -278,47 +336,25 @@ class _HalamanTracingState extends State<HalamanTracing> {
         for (int x = 0; x < userWidth; x++) {
           final int uByteIdx = (y * userWidth + x) * 4;
           if (uByteIdx + 3 >= userPixels.length) continue;
-
-          final int alphaUser = userPixels[uByteIdx + 3];
-          if (alphaUser < 30) continue;
+          if (userPixels[uByteIdx + 3] < 30) continue;
 
           totalUserPixels++;
 
-          bool nearLetter = false;
-          outerPrec:
-          for (int dy = -precisionTolerance; dy <= precisionTolerance; dy++) {
-            for (int dx = -precisionTolerance; dx <= precisionTolerance; dx++) {
-              final int nx = x + dx;
-              final int ny = y + dy;
-              if (nx < 0 || nx >= tempWidth || ny < 0 || ny >= tempHeight) {
-                continue;
-              }
-              final int tByteIdx = (ny * tempWidth + nx) * 4;
-              if (tByteIdx + 3 >= tempPixels.length) continue;
-              if (tempPixels[tByteIdx + 3] > 30) {
-                nearLetter = true;
-                break outerPrec;
-              }
-            }
+          final int tByteIdx = (y * tempWidth + x) * 4;
+          if (tByteIdx + 3 < tempPixels.length &&
+              tempPixels[tByteIdx + 3] > 30) {
+            userOnLetter++;
           }
-          if (nearLetter) userOnLetter++;
         }
       }
 
-      // ── Hitung Recall & Precision ─────────────────────────────────────────
       final double recall =
           totalTemplatePixels == 0 ? 0.0 : coveredByUser / totalTemplatePixels;
-
       final double precision =
           totalUserPixels == 0 ? 0.0 : userOnLetter / totalUserPixels;
 
-      // ── F-beta Score (beta=1.2: recall sedikit lebih penting) ────────────
-      // Ini mencegah asal coret: jika user coret seluruh kanvas,
-      // precision sangat rendah (~5-10%) sehingga skor tetap buruk
-      // meskipun recall = 100%
       const double beta = 1.2;
       const double betaSq = beta * beta;
-
       double fScore = 0.0;
       if (precision + recall > 0) {
         fScore = (1 + betaSq) *
@@ -326,56 +362,30 @@ class _HalamanTracingState extends State<HalamanTracing> {
             ((betaSq * precision) + recall);
       }
 
-      // Konversi ke 0-100
-      // fScore tracing bagus biasanya 0.55-0.75, dikalikan 140 → 77-100
-      // fScore asal coret biasanya < 0.15 → skor < 21
       double finalScore = fScore * 140.0;
       if (finalScore > 100) finalScore = 100;
-
-      // Hard cutoff: jika recall < 5% atau fScore terlalu rendah → skor 0
       if (recall < 0.05 || fScore < 0.05) finalScore = 0;
-
-      debugPrint(
-        'Score Debug:\n'
-        '  Template pixels : $totalTemplatePixels\n'
-        '  Covered by user : $coveredByUser\n'
-        '  User pixels     : $totalUserPixels\n'
-        '  User on letter  : $userOnLetter\n'
-        '  Recall          : ${(recall * 100).toStringAsFixed(1)}%\n'
-        '  Precision       : ${(precision * 100).toStringAsFixed(1)}%\n'
-        '  F-score         : ${fScore.toStringAsFixed(3)}\n'
-        '  Final score     : ${finalScore.toStringAsFixed(1)}',
-      );
 
       setState(() => _isCalculating = false);
       _showScoreDialog(finalScore);
-    } catch (e, stack) {
+    } catch (e) {
       setState(() => _isCalculating = false);
-      debugPrint('Scoring Error: $e\n$stack');
+      debugPrint('Scoring Error: $e');
     }
   }
 
   void _showScoreDialog(double score) {
     final bool isGreat = score > 95;
     final bool isOkay = score > 55;
-
     final String message = isGreat
         ? "Kamu hebat!"
         : (isOkay ? "Bagus, lanjutkan!" : "Ayo Coba Lagi!");
-
     final Color themeColor = isGreat
         ? const Color(0xFF4A8C40)
         : (isOkay ? Colors.blue.shade800 : Colors.orange.shade800);
-
     final Color barColor = isGreat
         ? const Color(0xFF4CAF50)
         : (isOkay ? Colors.blue.shade600 : Colors.orange.shade600);
-
-    final Color barBg = isGreat
-        ? const Color(0xFFE8F5E9)
-        : (isOkay ? Colors.blue.shade50 : Colors.orange.shade50);
-
-    // final int starCount = isGreat ? 3 : (isOkay ? 2 : 1);
 
     showDialog(
       context: context,
@@ -389,57 +399,18 @@ class _HalamanTracingState extends State<HalamanTracing> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 8),
-
-            // Bintang
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.center,
-            //   children: List.generate(3, (i) {
-            //     final bool filled = i < starCount;
-            //     return Padding(
-            //       padding: const EdgeInsets.symmetric(horizontal: 4),
-            //       child: Icon(
-            //         filled ? Icons.star_rounded : Icons.star_outline_rounded,
-            //         size: 40,
-            //         color: filled
-            //             ? Colors.amber.shade400
-            //             : Colors.grey.shade300,
-            //       ),
-            //     );
-            //   }),
-            // ),
-
             const SizedBox(height: 12),
-
-            Text(
-              message,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w900,
-                color: themeColor,
-              ),
-            ),
-
+            Text(message,
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: themeColor)),
             const SizedBox(height: 20),
-
-            Text(
-              'Akurasi Tracing',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
-                letterSpacing: 0.5,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // Progress bar
             Container(
               width: double.infinity,
               height: 22,
               decoration: BoxDecoration(
-                color: barBg,
+                color: barColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(11),
                 border: Border.all(color: barColor.withOpacity(0.3), width: 1),
               ),
@@ -448,69 +419,35 @@ class _HalamanTracingState extends State<HalamanTracing> {
                   FractionallySizedBox(
                     widthFactor: score / 100,
                     child: Container(
-                      decoration: BoxDecoration(
-                        color: barColor,
-                        borderRadius: BorderRadius.circular(11),
-                      ),
-                    ),
+                        decoration: BoxDecoration(
+                            color: barColor,
+                            borderRadius: BorderRadius.circular(11))),
                   ),
                   Center(
-                    child: Text(
-                      '${score.toStringAsFixed(1)}%',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: score > 50 ? Colors.white : barColor,
-                      ),
-                    ),
+                    child: Text('${score.toStringAsFixed(1)}%',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: score > 50 ? Colors.white : barColor)),
                   ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 6),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('0%',
-                    style:
-                        TextStyle(fontSize: 11, color: Colors.grey.shade400)),
-                Text(
-                  score > 70
-                      ? 'Hampir sempurna!'
-                      : (score > 35 ? 'Terus berlatih!' : 'Jangan menyerah!'),
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey.shade500,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                Text('100%',
-                    style:
-                        TextStyle(fontSize: 11, color: Colors.grey.shade400)),
-              ],
-            ),
-
             const SizedBox(height: 24),
-
             _buildLargeButton(
-              text: "Coba Lagi",
-              onTap: () {
-                Navigator.pop(context);
-                _clearCanvas();
-              },
-              widthMultiplier: 0.65,
-            ),
+                text: "Coba Lagi",
+                onTap: () {
+                  Navigator.pop(context);
+                  _clearCanvas();
+                },
+                widthMultiplier: 0.65),
             const SizedBox(height: 10),
             _buildLargeButton(
-              text: "Selesai",
-              onTap: () {
-                _navigateTo(const HalamanLatihan());
-              },
-              widthMultiplier: 0.65,
-            ),
-            const SizedBox(height: 4),
+                text: "Selesai",
+                onTap: () {
+                  _navigateTo(const HalamanLatihan());
+                },
+                widthMultiplier: 0.65),
           ],
         ),
       ),
@@ -521,13 +458,13 @@ class _HalamanTracingState extends State<HalamanTracing> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
-
     String hijaiyahImagePath =
         'assets/images/hijaiyah_tracing/${widget.hijaiyahName.toLowerCase()}.png';
 
     return Scaffold(
       body: Stack(
         children: [
+          // Background
           Positioned.fill(
             child: Image.asset(
               'assets/images/bg.png',
@@ -537,8 +474,8 @@ class _HalamanTracingState extends State<HalamanTracing> {
             ),
           ),
           Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.15)),
-          ),
+              child: Container(color: Colors.black.withOpacity(0.15))),
+
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -553,6 +490,7 @@ class _HalamanTracingState extends State<HalamanTracing> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          const SizedBox(height: 90),
                           // Toolbar
                           Padding(
                             padding: const EdgeInsets.symmetric(
@@ -586,8 +524,7 @@ class _HalamanTracingState extends State<HalamanTracing> {
                               ],
                             ),
                           ),
-
-                          // Slider ketebalan
+                          // Slider
                           Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 24.0),
@@ -606,20 +543,16 @@ class _HalamanTracingState extends State<HalamanTracing> {
                                         setState(() => _strokeWidth = val),
                                   ),
                                 ),
-                                Text(
-                                  "${_strokeWidth.toInt()}",
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12),
-                                ),
+                                Text("${_strokeWidth.toInt()}",
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12)),
                               ],
                             ),
                           ),
-
                           const SizedBox(height: 8),
-
-                          // Canvas area
+                          // Canvas
                           Center(
                             child: Container(
                               width: screenWidth * 0.90,
@@ -631,20 +564,15 @@ class _HalamanTracingState extends State<HalamanTracing> {
                                     Border.all(color: Colors.black, width: 2),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 5),
-                                  )
+                                      color: Colors.black.withOpacity(0.2),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 5))
                                 ],
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
                                 child: Stack(
                                   children: [
-                                    // ── Layer template ──────────────────
-                                    // PERBAIKAN: RepaintBoundary di LUAR
-                                    // Opacity agar toImage() membaca alpha
-                                    // asli dari PNG, bukan alpha × 0.25
                                     SizedBox.expand(
                                       child: RepaintBoundary(
                                         key: _templateKey,
@@ -655,19 +583,16 @@ class _HalamanTracingState extends State<HalamanTracing> {
                                             fit: BoxFit.contain,
                                             errorBuilder: (_, __, ___) =>
                                                 Center(
-                                              child: Text(
-                                                widget.hijaiyahLetter,
-                                                style: const TextStyle(
-                                                    fontSize: 150,
-                                                    color: Colors.grey),
-                                              ),
-                                            ),
+                                                    child: Text(
+                                                        widget.hijaiyahLetter,
+                                                        style: const TextStyle(
+                                                            fontSize: 150,
+                                                            color:
+                                                                Colors.grey))),
                                           ),
                                         ),
                                       ),
                                     ),
-
-                                    // ── Layer canvas user ───────────────
                                     SizedBox.expand(
                                       child: RepaintBoundary(
                                         key: _canvasKey,
@@ -676,9 +601,9 @@ class _HalamanTracingState extends State<HalamanTracing> {
                                           onPanUpdate: _onPanUpdate,
                                           onPanEnd: _onPanEnd,
                                           child: CustomPaint(
-                                            painter: _DrawingPainter(_strokes),
-                                            size: Size.infinite,
-                                          ),
+                                              painter:
+                                                  _DrawingPainter(_strokes),
+                                              size: Size.infinite),
                                         ),
                                       ),
                                     ),
@@ -687,43 +612,16 @@ class _HalamanTracingState extends State<HalamanTracing> {
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 24),
-
-                          // Tombol CEK TULISAN
                           _isCalculating
-                              ? Container(
-                                  width: screenWidth * 0.55,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFC7EFA3),
-                                    borderRadius: BorderRadius.circular(30.0),
-                                    border: Border.all(
-                                        color: const Color(0xFF6EDC68),
-                                        width: 2.5),
-                                  ),
-                                  child: const Center(
-                                    child: SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.5,
-                                        color: Color(0xFF4A8C40),
-                                      ),
-                                    ),
-                                  ),
-                                )
+                              ? const CircularProgressIndicator(
+                                  color: Color(0xFF4A8C40))
                               : _buildLargeButton(
-                                  text: 'CEK TULISAN',
-                                  onTap: _calculateScore,
-                                ),
-
+                                  text: 'CEK TULISAN', onTap: _calculateScore),
                           const SizedBox(height: 12),
                           _buildLargeButton(
-                            text: 'Kembali',
-                            onTap: () => Navigator.pop(context),
-                          ),
+                              text: 'Kembali',
+                              onTap: () => Navigator.pop(context)),
                           const SizedBox(height: 40),
                         ],
                       ),
@@ -733,17 +631,107 @@ class _HalamanTracingState extends State<HalamanTracing> {
               },
             ),
           ),
+
+          // TOMBOL BANTUAN (Pojok Kiri Atas)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 16,
+            left: 16,
+            child: GestureDetector(
+              onTap: _showHelpDialog,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6EDC68),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2))
+                      ],
+                    ),
+                    child: const CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Color(0xFFC7EFA3),
+                      child: Text('?',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF4A8C40))),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text('Bantuan',
+                      style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14)),
+                ],
+              ),
+            ),
+          ),
+
+          // TOMBOL PROFIL (Pojok Kanan Atas)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 16,
+            right: 16,
+            child: GestureDetector(
+              onTap: () async {
+                await Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const ProfilPage()));
+                loadUser();
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6EDC68),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2))
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 22,
+                      backgroundColor: const Color(0xFFC7EFA3),
+                      child: Text(
+                        fullname != null ? fullname![0].toUpperCase() : '?',
+                        style: GoogleFonts.poppins(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF4A8C40)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  if (fullname != null)
+                    Text(fullname!.split(' ').first,
+                        style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14)),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildRoundButton({
-    required IconData icon,
-    required VoidCallback onTap,
-    bool isActive = false,
-    Color activeColor = Colors.black,
-  }) {
+  Widget _buildRoundButton(
+      {required IconData icon,
+      required VoidCallback onTap,
+      bool isActive = false,
+      Color activeColor = Colors.black}) {
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -753,20 +741,16 @@ class _HalamanTracingState extends State<HalamanTracing> {
           shape: BoxShape.circle,
           border: Border.all(color: Colors.black, width: 1.5),
         ),
-        child: Icon(
-          icon,
-          color: isActive ? Colors.white : Colors.black,
-          size: 20,
-        ),
+        child:
+            Icon(icon, color: isActive ? Colors.white : Colors.black, size: 20),
       ),
     );
   }
 
-  Widget _buildLargeButton({
-    required String text,
-    required VoidCallback onTap,
-    double widthMultiplier = 0.55,
-  }) {
+  Widget _buildLargeButton(
+      {required String text,
+      required VoidCallback onTap,
+      double widthMultiplier = 0.55}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -778,22 +762,17 @@ class _HalamanTracingState extends State<HalamanTracing> {
           border: Border.all(color: const Color(0xFF6EDC68), width: 2.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 6,
-              offset: const Offset(0, 4),
-            ),
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 6,
+                offset: const Offset(0, 4))
           ],
         ),
         child: Center(
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-              color: Color(0xFF4A8C40),
-            ),
-          ),
-        ),
+            child: Text(text,
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF4A8C40)))),
       ),
     );
   }

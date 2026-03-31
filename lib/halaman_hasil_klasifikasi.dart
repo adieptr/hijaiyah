@@ -111,7 +111,7 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
     await DBHelper.instance.saveProgress(
       userId,
       widget.hijaiyahName.toLowerCase(),
-      accuracyPercent,
+      accuracyPercent, 
     );
 
     final history = await DBHelper.instance

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'halaman_latihan.dart';
+import 'profil.dart';
+import '../db/db_helper.dart';
+import '../utils/session.dart';
 
 class HalamanBelajar2 extends StatefulWidget {
   final String hijaiyahLetter;
@@ -18,37 +22,34 @@ class HalamanBelajar2 extends StatefulWidget {
 
 class _HalamanBelajar2State extends State<HalamanBelajar2> {
   final AudioPlayer _audioPlayer = AudioPlayer();
+  String? fullname;
 
   final Map<String, String> _hijaiyahFileNameMap = {
-    'ا': 'alif',
-    'ب': 'ba',
-    'ت': 'ta',
-    'ث': 'tsa',
-    'ج': 'jim',
-    'ح': 'kha',
-    'خ': 'kho',
-    'د': 'dal',
-    'ذ': 'dzal',
-    'ر': 'ro',
-    'ز': 'za',
-    'س': 'sin',
-    'ش': 'syin',
-    'ص': 'shod',
-    'ض': 'dhod',
-    'ط': 'tho',
-    'ظ': 'dzo',
-    'ع': 'ain',
-    'غ': 'ghain',
-    'ف': 'fa',
-    'ق': 'qof',
-    'ك': 'kaf',
-    'ل': 'lam',
-    'م': 'mim',
-    'ن': 'nun',
-    'و': 'wawu',
-    'ه': 'ha',
-    'ي': 'ya',
+    'ا': 'alif', 'ب': 'ba', 'ت': 'ta', 'ث': 'tsa', 'ج': 'jim',
+    'ح': 'kha', 'خ': 'kho', 'د': 'dal', 'ذ': 'dzal', 'ر': 'ro',
+    'ز': 'za', 'س': 'sin', 'ش': 'syin', 'ص': 'shod', 'ض': 'dhod',
+    'ط': 'tho', 'ظ': 'dzo', 'ع': 'ain', 'غ': 'ghain', 'ف': 'fa',
+    'ق': 'qof', 'ك': 'kaf', 'ل': 'lam', 'م': 'mim', 'ن': 'nun',
+    'و': 'wawu', 'ه': 'ha', 'ي': 'ya',
   };
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    final userId = await Session.getUser();
+    if (userId != null) {
+      final user = await DBHelper.instance.getUserById(userId);
+      if (mounted) {
+        setState(() {
+          fullname = user?['fullname'];
+        });
+      }
+    }
+  }
 
   String getGifPath() {
     String name = _hijaiyahFileNameMap[widget.hijaiyahLetter] ?? 'alif';
@@ -70,6 +71,78 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
     }
   }
 
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: Color(0xFF6EDC68), width: 2),
+          ),
+          backgroundColor: const Color(0xFFC7EFA3),
+          title: Text(
+            'Bantuan Belajar',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF4A8C40),
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHelpItem(
+                'Animasi Penulisan:',
+                'Gambar di tengah menunjukkan urutan cara menulis huruf hijaiyah yang benar.',
+              ),
+              const SizedBox(height: 12),
+              _buildHelpItem(
+                'Suara Huruf:',
+                'Tekan ikon speaker di pojok gambar untuk mendengarkan pelafalan huruf tersebut.',
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Mengerti',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF4A8C40),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildHelpItem(String title, String description) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: const Color(0xFF4A8C40),
+          ),
+        ),
+        Text(
+          description,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   void dispose() {
     _audioPlayer.dispose();
@@ -84,18 +157,22 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
     return Scaffold(
       body: Stack(
         children: [
+          // Background Image
           Positioned.fill(
             child: Image.asset('assets/images/bg.png', fit: BoxFit.cover),
           ),
           Positioned.fill(
             child: Container(color: Colors.black.withOpacity(0.15)),
           ),
+
+          // Konten Utama
           Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 60), // Memberi ruang untuk tombol di atas
                   Container(
                     width: screenWidth * 0.85,
                     height: screenHeight * 0.40,
@@ -150,7 +227,7 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
                   Text(
                     widget.description,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: GoogleFonts.poppins(
                       fontSize: screenWidth * 0.05,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -187,7 +264,7 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
                     ),
                     child: Text(
                       'Latihan',
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: const Color(0xFF4A8C40),
@@ -196,9 +273,7 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                    onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFC7EFA3),
                       padding: EdgeInsets.symmetric(
@@ -214,13 +289,132 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
                     ),
                     child: Text(
                       'Kembali',
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: const Color(0xFF4A8C40),
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
+          ),
+
+          // TOMBOL BANTUAN (Pojok Kiri Atas)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 16,
+            left: 16,
+            child: GestureDetector(
+              onTap: _showHelpDialog,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6EDC68),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Color(0xFFC7EFA3),
+                      child: Text(
+                        '?',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF4A8C40),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Bantuan',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      shadows: const [
+                        Shadow(
+                          color: Colors.black45,
+                          blurRadius: 4,
+                          offset: Offset(1, 1),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // TOMBOL PROFIL (Pojok Kanan Atas)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 16,
+            right: 16,
+            child: GestureDetector(
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProfilPage()),
+                );
+                loadUser(); // Refresh nama saat kembali
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6EDC68),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 22,
+                      backgroundColor: const Color(0xFFC7EFA3),
+                      child: Text(
+                        fullname != null ? fullname![0].toUpperCase() : '?',
+                        style: GoogleFonts.poppins(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF4A8C40),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  if (fullname != null)
+                    Text(
+                      fullname!.split(' ').first,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        shadows: const [
+                          Shadow(
+                            color: Colors.black45,
+                            blurRadius: 4,
+                            offset: Offset(1, 1),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
