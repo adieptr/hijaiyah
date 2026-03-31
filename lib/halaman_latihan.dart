@@ -9,34 +9,36 @@ import 'package:flutter/rendering.dart';
 
 enum DrawingMode { pencil, eraser }
 
-class _DrawingPoint {
-  final Offset position;
-  final Paint paint;
+// Model untuk menyimpan satu coretan
+class Stroke {
+  final Path path;
+  final Color color;
+  final double width;
 
-  _DrawingPoint(this.position, this.paint);
+  Stroke({
+    required this.path,
+    required this.color,
+    required this.width,
+  });
 }
 
 class _DrawingPainter extends CustomPainter {
-  final List<_DrawingPoint?> points;
+  final List<Stroke> strokes;
 
-  _DrawingPainter(this.points);
+  _DrawingPainter(this.strokes);
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (int i = 0; i < points.length - 1; i++) {
-      if (points[i] != null && points[i + 1] != null) {
-        canvas.drawLine(
-          points[i]!.position,
-          points[i + 1]!.position,
-          points[i]!.paint,
-        );
-      } else if (points[i] != null && points[i + 1] == null) {
-        canvas.drawPoints(
-          PointMode.points,
-          [points[i]!.position],
-          points[i]!.paint,
-        );
-      }
+    for (var stroke in strokes) {
+      final paint = Paint()
+        ..color = stroke.color
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = stroke.width
+        ..isAntiAlias = true;
+      
+      canvas.drawPath(stroke.path, paint);
     }
   }
 
@@ -54,7 +56,8 @@ class HalamanLatihan extends StatefulWidget {
 }
 
 class _HalamanLatihanState extends State<HalamanLatihan> {
-  List<_DrawingPoint?> _points = [];
+  List<Stroke> _strokes = [];
+  List<Stroke> _redoStack = [];
 
   DrawingMode _currentMode = DrawingMode.pencil;
   double _strokeWidth = 10.0;
@@ -84,45 +87,77 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
     }
   }
 
-  void _processPointerEvent(Offset globalPosition) {
+  void _onPanStart(DragStartDetails details) {
     final RenderBox? renderBox =
         _canvasKey.currentContext?.findRenderObject() as RenderBox?;
 
     if (renderBox == null) return;
 
-    final localPosition = renderBox.globalToLocal(globalPosition);
+    final localPosition = renderBox.globalToLocal(details.globalPosition);
+
+    _redoStack.clear(); // Hapus redo stack saat mulai coretan baru
+    
+    Path newPath = Path();
+    newPath.moveTo(localPosition.dx, localPosition.dy);
+    // Tambahkan lineTo yang sangat pendek agar titik (dot) bisa terlihat meskipun tidak digeser
+    newPath.lineTo(localPosition.dx + 0.1, localPosition.dy + 0.1);
+
+    setState(() {
+      _isDrawing = true;
+      _strokes.add(
+        Stroke(
+          path: newPath,
+          color: (_currentMode == DrawingMode.pencil) ? _pencilColor : _eraserColor,
+          width: _strokeWidth,
+        ),
+      );
+    });
+  }
+
+  void _onPanUpdate(DragUpdateDetails details) {
+    final RenderBox? renderBox =
+        _canvasKey.currentContext?.findRenderObject() as RenderBox?;
+
+    if (renderBox == null || _strokes.isEmpty) return;
+
+    final localPosition = renderBox.globalToLocal(details.globalPosition);
 
     if (localPosition.dx >= 0 &&
         localPosition.dy >= 0 &&
         localPosition.dx <= renderBox.size.width &&
         localPosition.dy <= renderBox.size.height) {
       setState(() {
-        _points.add(
-          _DrawingPoint(
-            localPosition,
-            Paint()
-              ..color = (_currentMode == DrawingMode.pencil)
-                  ? _pencilColor
-                  : _eraserColor
-              ..strokeWidth = _strokeWidth
-              ..strokeCap = StrokeCap.round
-              ..isAntiAlias = true,
-          ),
-        );
+        _strokes.last.path.lineTo(localPosition.dx, localPosition.dy);
       });
     }
   }
 
-  void _endDrawing() {
+  void _onPanEnd(DragEndDetails details) {
     setState(() {
-      _points.add(null);
       _isDrawing = false;
+    });
+  }
+
+  void _undo() {
+    setState(() {
+      if (_strokes.isNotEmpty) {
+        _redoStack.add(_strokes.removeLast());
+      }
+    });
+  }
+
+  void _redo() {
+    setState(() {
+      if (_redoStack.isNotEmpty) {
+        _strokes.add(_redoStack.removeLast());
+      }
     });
   }
 
   void _clearCanvas() {
     setState(() {
-      _points = [];
+      _strokes = [];
+      _redoStack = [];
     });
   }
 
@@ -142,7 +177,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
       return;
     }
 
-    if (_points.isEmpty) {
+    if (_strokes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Silahkan gambar terlebih dahulu.')),
       );
@@ -166,16 +201,21 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
     final label = top.key;
     final confidence = top.value;
 
-    Navigator.push(
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => HalamanHasilKlasifikasi(
           hijaiyahLetter: label,
           hijaiyahName: label,
           confidence: confidence,
+          userDrawing: pngBytes,
         ),
       ),
     );
+
+    if (result == true) {
+      _clearCanvas();
+    }
   }
 
   @override
@@ -222,6 +262,18 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                               children: [
                                 Row(
                                   children: [
+                                    _buildRoundButton(
+                                      icon: Icons.undo,
+                                      onTap: _undo,
+                                      tooltip: "Undo",
+                                    ),
+                                    const SizedBox(width: 8),
+                                    _buildRoundButton(
+                                      icon: Icons.redo,
+                                      onTap: _redo,
+                                      tooltip: "Redo",
+                                    ),
+                                    const SizedBox(width: 24),
                                     _buildRoundButton(
                                       icon: Icons.delete,
                                       onTap: _clearCanvas,
@@ -307,17 +359,11 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                                   ],
                                 ),
                                 child: GestureDetector(
-                                  onPanStart: (details) {
-                                    setState(() => _isDrawing = true);
-                                    _processPointerEvent(
-                                        details.globalPosition);
-                                  },
-                                  onPanUpdate: (details) =>
-                                      _processPointerEvent(
-                                          details.globalPosition),
-                                  onPanEnd: (details) => _endDrawing(),
+                                  onPanStart: _onPanStart,
+                                  onPanUpdate: _onPanUpdate,
+                                  onPanEnd: _onPanEnd,
                                   child: CustomPaint(
-                                    painter: _DrawingPainter(_points),
+                                    painter: _DrawingPainter(_strokes),
                                   ),
                                 ),
                               ),

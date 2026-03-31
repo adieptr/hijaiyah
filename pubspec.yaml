@@ -37,6 +37,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/hijaiyah/
+    - assets/images/hijaiyah_tracing/
     - assets/images/hijaiyah_gif/
     - assets/hijaiyah_sound/
     - assets/model/hijaiyah_model.tflite
