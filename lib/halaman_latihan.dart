@@ -6,19 +6,22 @@ import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'classifier.dart';
 import 'package:flutter/rendering.dart';
+import 'dart:math' as math; // Ditambahkan untuk perhitungan trigonometri
 
 enum DrawingMode { pencil, eraser }
 
-// Model untuk menyimpan satu coretan
+// Model diperbarui: Menggunakan List<Offset> agar bisa memproses setiap titik untuk efek kaligrafi
 class Stroke {
-  final Path path;
+  final List<Offset> points;
   final Color color;
   final double width;
+  final DrawingMode mode;
 
   Stroke({
-    required this.path,
+    required this.points,
     required this.color,
     required this.width,
+    required this.mode,
   });
 }
 
@@ -30,22 +33,73 @@ class _DrawingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (var stroke in strokes) {
+      if (stroke.points.isEmpty) continue;
+
       final paint = Paint()
         ..color = stroke.color
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = stroke.width
+        ..style = PaintingStyle.fill // Menggunakan fill untuk menggambar "nib" kaligrafi
         ..isAntiAlias = true;
+
+      // Jika mode penghapus, kita tetap menggunakan style stroke standar agar lebih bersih
+      if (stroke.mode == DrawingMode.eraser) {
+        final eraserPaint = Paint()
+          ..color = stroke.color
+          ..strokeCap = StrokeCap.round
+          ..strokeJoin = StrokeJoin.round
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = stroke.width;
+        
+        Path path = Path();
+        path.moveTo(stroke.points.first.dx, stroke.points.first.dy);
+        for (var i = 1; i < stroke.points.length; i++) {
+          path.lineTo(stroke.points[i].dx, stroke.points[i].dy);
+        }
+        canvas.drawPath(path, eraserPaint);
+        continue;
+      }
+
+      // Logika Brush Kaligrafi (Ribbon Effect)
+      // Sudut nib kaligrafi (biasanya 45 derajat atau -pi/4)
+      const double angle = -math.pi / 4; 
+      final double nibWidth = stroke.width;
+
+      // Vektor offset untuk bentuk mata pena
+      final Offset nibOffset = Offset(
+        math.cos(angle) * (nibWidth / 2),
+        math.sin(angle) * (nibWidth / 2),
+      );
+
+      for (int i = 0; i < stroke.points.length - 1; i++) {
+        final p1 = stroke.points[i];
+        final p2 = stroke.points[i + 1];
+
+        // Hitung 4 titik poligon yang menghubungkan dua posisi nib
+        final path = Path()
+          ..moveTo(p1.dx - nibOffset.dx, p1.dy - nibOffset.dy)
+          ..lineTo(p1.dx + nibOffset.dx, p1.dy + nibOffset.dy)
+          ..lineTo(p2.dx + nibOffset.dx, p2.dy + nibOffset.dy)
+          ..lineTo(p2.dx - nibOffset.dx, p2.dy - nibOffset.dy)
+          ..close();
+
+        canvas.drawPath(path, paint);
+      }
       
-      canvas.drawPath(stroke.path, paint);
+      // Gambar "titik" di awal dan akhir jika hanya satu titik
+      if (stroke.points.length == 1) {
+        final p = stroke.points.first;
+        final path = Path()
+          ..moveTo(p.dx - nibOffset.dx, p.dy - nibOffset.dy)
+          ..lineTo(p.dx + nibOffset.dx, p.dy + nibOffset.dy)
+          ..lineTo(p.dx + 0.1 + nibOffset.dx, p.dy + 0.1 + nibOffset.dy)
+          ..lineTo(p.dx + 0.1 - nibOffset.dx, p.dy + 0.1 - nibOffset.dy)
+          ..close();
+        canvas.drawPath(path, paint);
+      }
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 class HalamanLatihan extends StatefulWidget {
@@ -60,14 +114,13 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
   List<Stroke> _redoStack = [];
 
   DrawingMode _currentMode = DrawingMode.pencil;
-  double _strokeWidth = 10.0;
+  double _strokeWidth = 20; // Sedikit lebih tebal agar efek kaligrafi terasa
   final Color _pencilColor = Colors.black;
   final Color _eraserColor = Colors.white;
 
   final GlobalKey _canvasKey = GlobalKey();
   Classifier? _classifier;
   bool _loadingModel = false;
-
   bool _isDrawing = false;
 
   @override
@@ -88,36 +141,27 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
   }
 
   void _onPanStart(DragStartDetails details) {
-    final RenderBox? renderBox =
-        _canvasKey.currentContext?.findRenderObject() as RenderBox?;
-
+    final renderBox = _canvasKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
 
     final localPosition = renderBox.globalToLocal(details.globalPosition);
-
-    _redoStack.clear(); // Hapus redo stack saat mulai coretan baru
-    
-    Path newPath = Path();
-    newPath.moveTo(localPosition.dx, localPosition.dy);
-    // Tambahkan lineTo yang sangat pendek agar titik (dot) bisa terlihat meskipun tidak digeser
-    newPath.lineTo(localPosition.dx + 0.1, localPosition.dy + 0.1);
+    _redoStack.clear();
 
     setState(() {
       _isDrawing = true;
       _strokes.add(
         Stroke(
-          path: newPath,
+          points: [localPosition],
           color: (_currentMode == DrawingMode.pencil) ? _pencilColor : _eraserColor,
           width: _strokeWidth,
+          mode: _currentMode,
         ),
       );
     });
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
-    final RenderBox? renderBox =
-        _canvasKey.currentContext?.findRenderObject() as RenderBox?;
-
+    final renderBox = _canvasKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null || _strokes.isEmpty) return;
 
     final localPosition = renderBox.globalToLocal(details.globalPosition);
@@ -127,7 +171,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
         localPosition.dx <= renderBox.size.width &&
         localPosition.dy <= renderBox.size.height) {
       setState(() {
-        _strokes.last.path.lineTo(localPosition.dx, localPosition.dy);
+        _strokes.last.points.add(localPosition);
       });
     }
   }
@@ -162,8 +206,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
   }
 
   Future<Uint8List> _capturePngBytes() async {
-    final boundary =
-        _canvasKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+    final boundary = _canvasKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
     ui.Image image = await boundary.toImage(pixelRatio: 1.0);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     return byteData!.buffer.asUint8List();
@@ -171,51 +214,40 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
 
   Future<void> _classifyAndShow() async {
     if (_classifier == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Model belum siap. Tunggu sebentar.')),
-      );
+      _showMessage('Model belum siap. Tunggu sebentar.');
       return;
     }
-
     if (_strokes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Silahkan gambar terlebih dahulu.')),
-      );
+      _showMessage('Silahkan gambar terlebih dahulu.');
       return;
     }
 
     final pngBytes = await _capturePngBytes();
-
-    Map<String, double> preds;
     try {
-      preds = await _classifier!.predictFromPngBytes(pngBytes);
-    } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error saat klasifikasi: $e')));
-      return;
-    }
+      final preds = await _classifier!.predictFromPngBytes(pngBytes);
+      final sorted = preds.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+      final top = sorted.first;
 
-    final sorted = preds.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    final top = sorted.first;
-    final label = top.key;
-    final confidence = top.value;
-
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => HalamanHasilKlasifikasi(
-          hijaiyahLetter: label,
-          hijaiyahName: label,
-          confidence: confidence,
-          userDrawing: pngBytes,
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HalamanHasilKlasifikasi(
+            hijaiyahLetter: top.key,
+            hijaiyahName: top.key,
+            confidence: top.value,
+            userDrawing: pngBytes,
+          ),
         ),
-      ),
-    );
+      );
 
-    if (result == true) {
-      _clearCanvas();
+      if (result == true) _clearCanvas();
+    } catch (e) {
+      _showMessage('Error saat klasifikasi: $e');
     }
+  }
+
+  void _showMessage(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override
@@ -232,113 +264,76 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
               'assets/images/bg.png',
               fit: BoxFit.cover,
               alignment: Alignment.topCenter,
-              errorBuilder: (context, error, stackTrace) =>
-                  Container(color: Colors.green[100]),
+              errorBuilder: (_, __, ___) => Container(color: Colors.green[100]),
             ),
           ),
-          Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.15)),
-          ),
+          Positioned.fill(child: Container(color: Colors.black.withOpacity(0.15))),
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
-                  physics: _isDrawing
-                      ? const NeverScrollableScrollPhysics()
-                      : const ClampingScrollPhysics(),
+                  physics: _isDrawing ? const NeverScrollableScrollPhysics() : const ClampingScrollPhysics(),
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
-                    ),
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
                     child: IntrinsicHeight(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          // Toolbar
                           Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0, vertical: 8.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Row(
-                                  children: [
-                                    _buildRoundButton(
-                                      icon: Icons.undo,
-                                      onTap: _undo,
-                                      tooltip: "Undo",
-                                    ),
-                                    const SizedBox(width: 8),
-                                    _buildRoundButton(
-                                      icon: Icons.redo,
-                                      onTap: _redo,
-                                      tooltip: "Redo",
-                                    ),
-                                    const SizedBox(width: 24),
-                                    _buildRoundButton(
-                                      icon: Icons.delete,
-                                      onTap: _clearCanvas,
-                                      tooltip: "Bersihkan",
-                                    ),
-                                    const SizedBox(width: 8),
-                                    _buildRoundButton(
-                                      icon: Icons.cleaning_services,
-                                      onTap: () => setState(() =>
-                                          _currentMode = DrawingMode.eraser),
-                                      isActive:
-                                          _currentMode == DrawingMode.eraser,
-                                      activeColor: Colors.orangeAccent,
-                                      tooltip: "Penghapus",
-                                    ),
-                                    const SizedBox(width: 8),
-                                    _buildRoundButton(
-                                      icon: Icons.edit,
-                                      onTap: () => setState(() =>
-                                          _currentMode = DrawingMode.pencil),
-                                      isActive:
-                                          _currentMode == DrawingMode.pencil,
-                                      activeColor: Colors.blueAccent,
-                                      tooltip: "Pensil",
-                                    ),
-                                  ],
+                                _buildRoundButton(icon: Icons.undo, onTap: _undo, tooltip: "Undo"),
+                                const SizedBox(width: 8),
+                                _buildRoundButton(icon: Icons.redo, onTap: _redo, tooltip: "Redo"),
+                                const SizedBox(width: 24),
+                                _buildRoundButton(icon: Icons.delete, onTap: _clearCanvas, tooltip: "Bersihkan"),
+                                const SizedBox(width: 8),
+                                _buildRoundButton(
+                                  icon: Icons.cleaning_services,
+                                  onTap: () => setState(() => _currentMode = DrawingMode.eraser),
+                                  isActive: _currentMode == DrawingMode.eraser,
+                                  activeColor: Colors.orangeAccent,
+                                  tooltip: "Penghapus",
+                                ),
+                                const SizedBox(width: 8),
+                                _buildRoundButton(
+                                  icon: Icons.edit,
+                                  onTap: () => setState(() => _currentMode = DrawingMode.pencil),
+                                  isActive: _currentMode == DrawingMode.pencil,
+                                  activeColor: Colors.blueAccent,
+                                  tooltip: "Brush Kaligrafi",
                                 ),
                               ],
                             ),
                           ),
+                          // Slider Tebal Brush
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 24.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
                             child: Row(
                               children: [
-                                Icon(
-                                  _currentMode == DrawingMode.pencil
-                                      ? Icons.line_weight
-                                      : Icons.circle,
-                                  size: 16,
-                                  color: Colors.white,
-                                ),
+                                const Icon(Icons.line_weight, size: 16, color: Colors.white),
                                 Expanded(
                                   child: Slider(
                                     value: _strokeWidth,
                                     min: 1.0,
-                                    max: 30.0,
+                                    max: 40.0,
                                     activeColor: Colors.white,
                                     inactiveColor: Colors.white24,
-                                    onChanged: (val) =>
-                                        setState(() => _strokeWidth = val),
+                                    onChanged: (val) => setState(() => _strokeWidth = val),
                                   ),
                                 ),
                                 Text(
                                   _strokeWidth.toInt().toString(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                                 )
                               ],
                             ),
                           ),
                           SizedBox(height: screenHeight * 0.02),
+                          // Area Menggambar
                           Center(
                             child: RepaintBoundary(
                               key: _canvasKey,
@@ -348,8 +343,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(12),
-                                  border:
-                                      Border.all(color: Colors.black, width: 2),
+                                  border: Border.all(color: Colors.black, width: 2),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.2),
@@ -370,83 +364,16 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                             ),
                           ),
                           SizedBox(height: screenHeight * 0.04),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: GestureDetector(
-                              onTap: _loadingModel ? null : _classifyAndShow,
-                              child: Container(
-                                width: screenWidth * 0.55,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFC7EFA3),
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  border: Border.all(
-                                      color: const Color(0xFF6EDC68),
-                                      width: 2.5),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.15),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: _loadingModel
-                                      ? const SizedBox(
-                                          width: 18,
-                                          height: 18,
-                                          child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.green),
-                                        )
-                                      : const Text(
-                                          'Cari Tahu',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w900,
-                                            color: Color(0xFF4A8C40),
-                                          ),
-                                        ),
-                                ),
-                              ),
-                            ),
+                          // Tombol Aksi
+                          _buildActionButton(
+                            text: 'Cari Tahu',
+                            onTap: _loadingModel ? null : _classifyAndShow,
+                            isLoading: _loadingModel,
                           ),
                           const SizedBox(height: 12),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: Container(
-                                width: screenWidth * 0.55,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFC7EFA3),
-                                  borderRadius: BorderRadius.circular(30.0),
-                                  border: Border.all(
-                                      color: Color(0xFF6EDC68), width: 2.5),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: const Center(
-                                  child: Text(
-                                    'Kembali',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w900,
-                                      color: Color(0xFF4A8C40),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                          _buildActionButton(
+                            text: 'Menu',
+                            onTap: () =>  Navigator.popUntil(context, (route) => route.isFirst),
                           ),
                           SizedBox(height: screenHeight * 0.05),
                         ],
@@ -458,6 +385,32 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({required String text, VoidCallback? onTap, bool isLoading = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.55,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFC7EFA3),
+            borderRadius: BorderRadius.circular(30.0),
+            border: Border.all(color: const Color(0xFF6EDC68), width: 2.5),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 6, offset: const Offset(0, 4)),
+            ],
+          ),
+          child: Center(
+            child: isLoading
+                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.green))
+                : Text(text, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF4A8C40))),
+          ),
+        ),
       ),
     );
   }
@@ -477,20 +430,8 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
           color: isActive ? activeColor : Colors.white.withOpacity(0.9),
           shape: BoxShape.circle,
           border: Border.all(color: Colors.black, width: 1.5),
-          boxShadow: [
-            if (isActive)
-              BoxShadow(
-                color: activeColor.withOpacity(0.3),
-                blurRadius: 6,
-                spreadRadius: 1,
-              )
-          ],
         ),
-        child: Icon(
-          icon,
-          color: isActive ? Colors.white : Colors.black,
-          size: 20,
-        ),
+        child: Icon(icon, color: isActive ? Colors.white : Colors.black, size: 20),
       ),
     );
   }
