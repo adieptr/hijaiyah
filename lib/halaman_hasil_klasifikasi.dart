@@ -108,9 +108,9 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
     if (isLowAccuracy) {
       return "Tulisannya hampir mirip, tapi perlu sedikit perbaikan.\nCoba bandingkan dengan contoh di bawah ini.";
     } else if (_isMastered) {
-      return "Luar Biasa! Kamu sudah menguasai huruf ini.\nSiap lanjut ke tantangan berikutnya?";
+      return "Luar Biasa! Kamu sudah bisa menulis huruf ini.\nSiap lanjut ke tantangan berikutnya?";
     } else {
-      return "MasyaAllah! Tulisanmu sudah bagus.\nSedikit lagi untuk jadi Master!";
+      return "MasyaAllah! Tulisanmu sudah bagus.\n Ayo terus berlatih!";
     }
   }
 

@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Betulyah',
+      title: 'Belajar Hijaiyah',
       theme: ThemeData(primarySwatch: Colors.green),
       home: const AuthChecker(),
     );

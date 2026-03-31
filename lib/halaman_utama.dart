@@ -150,9 +150,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       child: Stack(
                         children: [
                           Text(
-                            'Betulyah',
+                            'Belajar Hijaiyah',
                             style: GoogleFonts.poppins(
-                              fontSize: screenWidth * 0.15,
+                              fontSize: screenWidth * 0.10,
                               fontWeight: FontWeight.bold,
                               foreground: Paint()
                                 ..style = PaintingStyle.stroke
@@ -162,9 +162,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             ),
                           ),
                           Text(
-                            'Betulyah',
+                            'Belajar Hijaiyah',
                             style: GoogleFonts.poppins(
-                              fontSize: screenWidth * 0.15,
+                              fontSize: screenWidth * 0.10,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
@@ -172,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         ],
                       )),
                   Text(
-                    'Belajar Tulis Huruf Hijaiyah',
+                    'Belajar Kenali Huruf Hijaiyah',
                     style: GoogleFonts.poppins(
                       fontSize: screenWidth * 0.04,
                       color: Colors.white,

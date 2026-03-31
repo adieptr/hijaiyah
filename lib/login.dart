@@ -97,9 +97,9 @@ class _LoginPageState extends State<LoginPage> {
                       alignment: Alignment.center,
                       children: [
                         Text(
-                          "Betulyah",
+                          "Belajar Hijaiyah",
                           style: GoogleFonts.fredoka(
-                            fontSize: 48,
+                            fontSize: 35,
                             fontWeight: FontWeight.bold,
                             foreground: Paint()
                               ..style = PaintingStyle.stroke
@@ -108,9 +108,9 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         Text(
-                          "Betulyah",
+                          "Belajar Hijaiyah",
                           style: GoogleFonts.fredoka(
-                            fontSize: 48,
+                            fontSize: 35,
                             fontWeight: FontWeight.bold,
                             color: const Color(0xFFC7EFA3),
                           ),
@@ -118,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     Text(
-                      "Belajar Tulis Huruf Hijaiyah",
+                      "Belajar Kenali Huruf Hijaiyah",
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         fontSize: 13,

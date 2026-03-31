@@ -39,8 +39,7 @@ class HijaiyahButton extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
               decoration: BoxDecoration(
                 color: const Color(0xFF6EDC68),
                 borderRadius: BorderRadius.circular(30),
@@ -85,44 +84,44 @@ class _BelajarScreenState extends State<BelajarScreen> {
 
   final List<List<Map<String, String>>> pages = [
     [
-      {'letter': 'ا', 'text': 'Belajar Menulis Huruf Alif'},
-      {'letter': 'ب', 'text': 'Belajar Menulis Huruf Ba'},
-      {'letter': 'ت', 'text': 'Belajar Menulis Huruf Ta'},
-      {'letter': 'ث', 'text': 'Belajar Menulis Huruf Tsa'},
-      {'letter': 'ج', 'text': 'Belajar Menulis Huruf Jim'},
+      {'letter': 'ا', 'text': 'Belajar Huruf Alif'},
+      {'letter': 'ب', 'text': 'Belajar Huruf Ba'},
+      {'letter': 'ت', 'text': 'Belajar Huruf Ta'},
+      {'letter': 'ث', 'text': 'Belajar Huruf Tsa'},
+      {'letter': 'ج', 'text': 'Belajar Huruf Jim'},
     ],
     [
-      {'letter': 'ح', 'text': 'Belajar Menulis Huruf Kha'},
-      {'letter': 'خ', 'text': 'Belajar Menulis Huruf Kho'},
-      {'letter': 'د', 'text': 'Belajar Menulis Huruf Dal'},
-      {'letter': 'ذ', 'text': 'Belajar Menulis Huruf Dzal'},
-      {'letter': 'ر', 'text': 'Belajar Menulis Huruf Ro'},
+      {'letter': 'ح', 'text': 'Belajar Huruf Kha'},
+      {'letter': 'خ', 'text': 'Belajar Huruf Kho'},
+      {'letter': 'د', 'text': 'Belajar Huruf Dal'},
+      {'letter': 'ذ', 'text': 'Belajar Huruf Dzal'},
+      {'letter': 'ر', 'text': 'Belajar Huruf Ro'},
     ],
     [
-      {'letter': 'ز', 'text': 'Belajar Menulis Huruf Za'},
-      {'letter': 'س', 'text': 'Belajar Menulis Huruf Sin'},
-      {'letter': 'ش', 'text': 'Belajar Menulis Huruf Syin'},
-      {'letter': 'ص', 'text': 'Belajar Menulis Huruf Shod'},
-      {'letter': 'ض', 'text': 'Belajar Menulis Huruf Dhod'},
+      {'letter': 'ز', 'text': 'Belajar Huruf Za'},
+      {'letter': 'س', 'text': 'Belajar Huruf Sin'},
+      {'letter': 'ش', 'text': 'Belajar Huruf Syin'},
+      {'letter': 'ص', 'text': 'Belajar Huruf Shod'},
+      {'letter': 'ض', 'text': 'Belajar Huruf Dhod'},
     ],
     [
-      {'letter': 'ط', 'text': 'Belajar Menulis Huruf Tho'},
-      {'letter': 'ظ', 'text': 'Belajar Menulis Huruf Dzo'},
-      {'letter': 'ع', 'text': 'Belajar Menulis Huruf Ain'},
-      {'letter': 'غ', 'text': 'Belajar Menulis Huruf Ghain'},
-      {'letter': 'ف', 'text': 'Belajar Menulis Huruf Fa'},
+      {'letter': 'ط', 'text': 'Belajar Huruf Tho'},
+      {'letter': 'ظ', 'text': 'Belajar Huruf Dzo'},
+      {'letter': 'ع', 'text': 'Belajar Huruf Ain'},
+      {'letter': 'غ', 'text': 'Belajar Huruf Ghain'},
+      {'letter': 'ف', 'text': 'Belajar Huruf Fa'},
     ],
     [
-      {'letter': 'ق', 'text': 'Belajar Menulis Huruf Qof'},
-      {'letter': 'ك', 'text': 'Belajar Menulis Huruf Kaf'},
-      {'letter': 'ل', 'text': 'Belajar Menulis Huruf Lam'},
-      {'letter': 'م', 'text': 'Belajar Menulis Huruf Mim'},
-      {'letter': 'ن', 'text': 'Belajar Menulis Huruf Nun'},
+      {'letter': 'ق', 'text': 'Belajar Huruf Qof'},
+      {'letter': 'ك', 'text': 'Belajar Huruf Kaf'},
+      {'letter': 'ل', 'text': 'Belajar Huruf Lam'},
+      {'letter': 'م', 'text': 'Belajar Huruf Mim'},
+      {'letter': 'ن', 'text': 'Belajar Huruf Nun'},
     ],
     [
-      {'letter': 'و', 'text': 'Belajar Menulis Huruf Wawu'},
-      {'letter': 'ه', 'text': 'Belajar Menulis Huruf Ha'},
-      {'letter': 'ي', 'text': 'Belajar Menulis Huruf Ya'},
+      {'letter': 'و', 'text': 'Belajar Huruf Wawu'},
+      {'letter': 'ه', 'text': 'Belajar Huruf Ha'},
+      {'letter': 'ي', 'text': 'Belajar Huruf Ya'},
     ],
   ];
 
@@ -166,8 +165,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
                       itemCount: pages[index].length,
                       itemBuilder: (context, i) {
                         return HijaiyahButton(
-                          hijaiyahLetter:
-                              pages[index][i]['letter']!,
+                          hijaiyahLetter: pages[index][i]['letter']!,
                           text: pages[index][i]['text']!,
                         );
                       },
@@ -176,21 +174,18 @@ class _BelajarScreenState extends State<BelajarScreen> {
                 ),
               ),
               Padding(
-                padding:
-                    const EdgeInsets.fromLTRB(20, 10, 20, 60),
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 60),
                 child: Column(
                   children: [
                     Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _buildArrowButton(
                           icon: Icons.arrow_back_ios_new,
                           onPressed: () {
                             if (currentPage > 0) {
                               _pageController.previousPage(
-                                duration:
-                                    const Duration(milliseconds: 300),
+                                duration: const Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
                               );
                             }
@@ -218,8 +213,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
                           onPressed: () {
                             if (currentPage < pages.length - 1) {
                               _pageController.nextPage(
-                                duration:
-                                    const Duration(milliseconds: 300),
+                                duration: const Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
                               );
                             }
@@ -234,14 +228,11 @@ class _BelajarScreenState extends State<BelajarScreen> {
                       child: ElevatedButton(
                         onPressed: () => Navigator.pop(context),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color(0xFFC5E99B),
-                          foregroundColor:
-                              const Color(0xFF4A7C44),
+                          backgroundColor: const Color(0xFFC5E99B),
+                          foregroundColor: const Color(0xFF4A7C44),
                           elevation: 8,
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(35),
+                            borderRadius: BorderRadius.circular(35),
                             side: const BorderSide(
                               color: Color(0xFF8BC34A),
                               width: 3,
@@ -278,8 +269,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
         decoration: BoxDecoration(
           color: const Color(0xFFC5E99B),
           shape: BoxShape.circle,
-          border:
-              Border.all(color: const Color(0xFF8BC34A), width: 3),
+          border: Border.all(color: const Color(0xFF8BC34A), width: 3),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.2),
@@ -288,8 +278,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
             )
           ],
         ),
-        child:
-            Icon(icon, color: const Color(0xFF4A7C44), size: 22),
+        child: Icon(icon, color: const Color(0xFF4A7C44), size: 22),
       ),
     );
   }
