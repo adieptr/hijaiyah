@@ -10,17 +10,20 @@ import '../utils/session.dart';
 import 'dart:typed_data';
 import 'dart:math' as math;
 
+// Model diperbarui: Menambahkan isCalligraphy untuk menentukan gaya lukisan per stroke
 class Stroke {
   final List<Offset> points;
   final Color color;
   final double width;
   final bool isEraser;
+  final bool isCalligraphy;
 
   Stroke({
     required this.points,
     required this.color,
     required this.width,
     required this.isEraser,
+    this.isCalligraphy = true,
   });
 }
 
@@ -41,49 +44,79 @@ class _DrawingPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = stroke.width;
 
-        final path = Path();
-        path.moveTo(stroke.points.first.dx, stroke.points.first.dy);
-        for (int i = 1; i < stroke.points.length; i++) {
-          path.lineTo(stroke.points[i].dx, stroke.points[i].dy);
-        }
-        canvas.drawPath(path, paint);
-      } else {
-        final paint = Paint()
-          ..color = stroke.color
-          ..style = PaintingStyle.fill
-          ..isAntiAlias = true;
-
-        const double angle = -math.pi / 4;
-        final double nibWidth = stroke.width;
-
-        final Offset nibOffset = Offset(
-          math.cos(angle) * (nibWidth / 2),
-          math.sin(angle) * (nibWidth / 2),
-        );
-
-        for (int i = 0; i < stroke.points.length - 1; i++) {
-          final p1 = stroke.points[i];
-          final p2 = stroke.points[i + 1];
-
-          final path = Path()
-            ..moveTo(p1.dx - nibOffset.dx, p1.dy - nibOffset.dy)
-            ..lineTo(p1.dx + nibOffset.dx, p1.dy + nibOffset.dy)
-            ..lineTo(p2.dx + nibOffset.dx, p2.dy + nibOffset.dy)
-            ..lineTo(p2.dx - nibOffset.dx, p2.dy - nibOffset.dy)
-            ..close();
-
-          canvas.drawPath(path, paint);
-        }
-
         if (stroke.points.length == 1) {
-          final p = stroke.points.first;
-          final path = Path()
-            ..moveTo(p.dx - nibOffset.dx, p.dy - nibOffset.dy)
-            ..lineTo(p.dx + nibOffset.dx, p.dy + nibOffset.dy)
-            ..lineTo(p.dx + 0.1 + nibOffset.dx, p.dy + 0.1 + nibOffset.dy)
-            ..lineTo(p.dx + 0.1 - nibOffset.dx, p.dy + 0.1 - nibOffset.dy)
-            ..close();
+          // LOGIKA TITIK UNTUK PENGHAPUS
+          canvas.drawCircle(stroke.points.first, stroke.width / 2, paint..style = PaintingStyle.fill);
+        } else {
+          final path = Path();
+          path.moveTo(stroke.points.first.dx, stroke.points.first.dy);
+          for (int i = 1; i < stroke.points.length; i++) {
+            path.lineTo(stroke.points[i].dx, stroke.points[i].dy);
+          }
           canvas.drawPath(path, paint);
+        }
+      } else {
+        // Mode Pensil: Cek apakah gaya kaligrafi atau normal
+        if (!stroke.isCalligraphy) {
+          // GAYA PENA NORMAL
+          final normalPaint = Paint()
+            ..color = stroke.color
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.round
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = stroke.width
+            ..isAntiAlias = true;
+
+          if (stroke.points.length == 1) {
+            // LOGIKA TITIK: Jika hanya satu titik, gambar lingkaran (dot)
+            canvas.drawCircle(stroke.points.first, stroke.width / 2, normalPaint..style = PaintingStyle.fill);
+          } else {
+            final path = Path();
+            path.moveTo(stroke.points.first.dx, stroke.points.first.dy);
+            for (var i = 1; i < stroke.points.length; i++) {
+              path.lineTo(stroke.points[i].dx, stroke.points[i].dy);
+            }
+            canvas.drawPath(path, normalPaint);
+          }
+        } else {
+          // GAYA PENA KALIGRAFI (Ribbon Effect)
+          final paint = Paint()
+            ..color = stroke.color
+            ..style = PaintingStyle.fill
+            ..isAntiAlias = true;
+
+          const double angle = -math.pi / 4;
+          final double nibWidth = stroke.width;
+
+          final Offset nibOffset = Offset(
+            math.cos(angle) * (nibWidth / 2),
+            math.sin(angle) * (nibWidth / 2),
+          );
+
+          for (int i = 0; i < stroke.points.length - 1; i++) {
+            final p1 = stroke.points[i];
+            final p2 = stroke.points[i + 1];
+
+            final path = Path()
+              ..moveTo(p1.dx - nibOffset.dx, p1.dy - nibOffset.dy)
+              ..lineTo(p1.dx + nibOffset.dx, p1.dy + nibOffset.dy)
+              ..lineTo(p2.dx + nibOffset.dx, p2.dy + nibOffset.dy)
+              ..lineTo(p2.dx - nibOffset.dx, p2.dy - nibOffset.dy)
+              ..close();
+
+            canvas.drawPath(path, paint);
+          }
+
+          if (stroke.points.length == 1) {
+            final p = stroke.points.first;
+            final path = Path()
+              ..moveTo(p.dx - nibOffset.dx, p.dy - nibOffset.dy)
+              ..lineTo(p.dx + nibOffset.dx, p.dy + nibOffset.dy)
+              ..lineTo(p.dx + 0.1 + nibOffset.dx, p.dy + 0.1 + nibOffset.dy)
+              ..lineTo(p.dx + 0.1 - nibOffset.dx, p.dy + 0.1 - nibOffset.dy)
+              ..close();
+            canvas.drawPath(path, paint);
+          }
         }
       }
     }
@@ -111,9 +144,10 @@ class _HalamanTracingState extends State<HalamanTracing> {
   List<Stroke> _strokes = [];
   List<Stroke> _redoStack = [];
   Color _currentColor = const Color(0xFF2E7D32);
-  double _strokeWidth = 25.0;
+  double _strokeWidth = 25.0; // Default awal kaligrafi
   bool _isDrawing = false;
   bool _isEraser = false;
+  bool _isCalligraphyStyle = true; // Toggle untuk gaya brush
   bool _isCalculating = false;
   String? fullname;
 
@@ -154,6 +188,7 @@ class _HalamanTracingState extends State<HalamanTracing> {
         color: _isEraser ? Colors.white : _currentColor,
         width: _strokeWidth,
         isEraser: _isEraser,
+        isCalligraphy: _isCalligraphyStyle,
       ));
     });
   }
@@ -206,20 +241,64 @@ class _HalamanTracingState extends State<HalamanTracing> {
                 color: const Color(0xFF4A8C40),
               ),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHelpItem(
-                  'Tujuan:',
-                  'Tebalkan huruf hijaiyah yang muncul samar di layar sesuai dengan bentuknya.',
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.4,
                 ),
-                const SizedBox(height: 12),
-                _buildHelpItem(
-                  'Penilaian:',
-                  'Skor dihitung berdasarkan seberapa akurat coretan Anda mengikuti pola huruf tersebut.',
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.keyboard_arrow_down,
+                      size: 20,
+                      color: Colors.black45,
+                    ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildHelpItem(
+                              '🎯 Tujuan Utama',
+                              'Tebalkan huruf hijaiyah yang muncul samar di layar sesuai dengan urutan dan bentuknya.',
+                            ),
+                            const SizedBox(height: 12),
+                            _buildHelpItem(
+                              '🖌️ Cara Menebalkan',
+                              '• Gunakan jari untuk mengikuti pola huruf.\n'
+                                  '• Usahakan coretan tetap berada di dalam area huruf.\n'
+                                  '• Ketuk sekali untuk membuat titik (pada mode Pena Normal).',
+                            ),
+                            const SizedBox(height: 12),
+                            _buildHelpItem(
+                              '🎨 Gaya Pena',
+                              '• Mode Normal: ukuran default 15.\n'
+                                  '• Mode Kaligrafi: ukuran default 25 (pena miring).\n'
+                                  '• Tekan tombol "Gaya Pena" untuk berganti bentuk.',
+                            ),
+                            const SizedBox(height: 12),
+                            _buildHelpItem(
+                              '✏️ Mode Tulis & Hapus',
+                              'Gunakan satu tombol toggle untuk berganti antara menulis (biru) dan menghapus (oranye).',
+                            ),
+                            const SizedBox(height: 12),
+                            _buildHelpItem(
+                              '📊 Penilaian',
+                              'Skor dihitung otomatis berdasarkan seberapa akurat coretan Anda menutupi pola huruf yang disediakan.',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.keyboard_arrow_up,
+                      size: 20,
+                      color: Colors.black45,
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
             actions: [
               TextButton(
@@ -366,6 +445,17 @@ class _HalamanTracingState extends State<HalamanTracing> {
       if (finalScore > 100) finalScore = 100;
       if (recall < 0.05 || fScore < 0.05) finalScore = 0;
 
+      // Logika Penyimpanan (Contoh mode: 'tracing')
+      // final int? userId = await Session.getUser();
+      // if (userId != null) {
+      //   await DBHelper.instance.saveProgress(
+      //     userId,
+      //     widget.hijaiyahName.toLowerCase(),
+      //     finalScore,
+      //     mode: 'tracing',
+      //   );
+      // }
+
       setState(() => _isCalculating = false);
       _showScoreDialog(finalScore);
     } catch (e) {
@@ -445,7 +535,7 @@ class _HalamanTracingState extends State<HalamanTracing> {
             _buildLargeButton(
                 text: "Selesai",
                 onTap: () {
-                  _navigateTo(const HalamanLatihan());
+                  Navigator.pop(context);
                 },
                 widthMultiplier: 0.65),
           ],
@@ -499,27 +589,38 @@ class _HalamanTracingState extends State<HalamanTracing> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 _buildRoundButton(
-                                    icon: Icons.undo, onTap: _undo),
+                                    icon: Icons.undo, onTap: _undo, tooltip: "Undo"),
                                 const SizedBox(width: 8),
                                 _buildRoundButton(
-                                    icon: Icons.redo, onTap: _redo),
+                                    icon: Icons.redo, onTap: _redo, tooltip: "Redo"),
                                 const SizedBox(width: 24),
                                 _buildRoundButton(
-                                    icon: Icons.delete, onTap: _clearCanvas),
+                                    icon: Icons.delete, onTap: _clearCanvas, tooltip: "Bersihkan"),
                                 const SizedBox(width: 8),
+                                
+                                // TOMBOL TOGGLE PENSIL / PENGHAPUS
                                 _buildRoundButton(
-                                  icon: Icons.cleaning_services,
-                                  onTap: () => setState(() => _isEraser = true),
-                                  isActive: _isEraser,
-                                  activeColor: Colors.orangeAccent,
+                                  icon: _isEraser ? Icons.cleaning_services : Icons.edit,
+                                  onTap: () => setState(() => _isEraser = !_isEraser),
+                                  isActive: true,
+                                  activeColor: _isEraser ? Colors.orangeAccent : Colors.blueAccent,
+                                  tooltip: _isEraser ? "Mode Hapus" : "Mode Tulis",
                                 ),
                                 const SizedBox(width: 8),
+
+                                // TOMBOL SWITCH GAYA PENA (NORMAL / KALIGRAFI)
                                 _buildRoundButton(
-                                  icon: Icons.edit,
-                                  onTap: () =>
-                                      setState(() => _isEraser = false),
-                                  isActive: !_isEraser,
-                                  activeColor: Colors.blueAccent,
+                                  icon: _isCalligraphyStyle ? Icons.history_edu : Icons.brush,
+                                  onTap: () {
+                                    setState(() {
+                                      _isCalligraphyStyle = !_isCalligraphyStyle;
+                                      _isEraser = false; // Kembali ke pensil saat ganti gaya
+                                      _strokeWidth = _isCalligraphyStyle ? 25.0 : 19.0;
+                                    });
+                                  },
+                                  isActive: true,
+                                  activeColor: Colors.purpleAccent,
+                                  tooltip: "Gaya Pena",
                                 ),
                               ],
                             ),
@@ -560,8 +661,7 @@ class _HalamanTracingState extends State<HalamanTracing> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
-                                border:
-                                    Border.all(color: Colors.black, width: 2),
+                                border: Border.all(color: Colors.black, width: 2),
                                 boxShadow: [
                                   BoxShadow(
                                       color: Colors.black.withOpacity(0.2),
@@ -601,8 +701,7 @@ class _HalamanTracingState extends State<HalamanTracing> {
                                           onPanUpdate: _onPanUpdate,
                                           onPanEnd: _onPanEnd,
                                           child: CustomPaint(
-                                              painter:
-                                                  _DrawingPainter(_strokes),
+                                              painter: _DrawingPainter(_strokes),
                                               size: Size.infinite),
                                         ),
                                       ),
@@ -731,7 +830,8 @@ class _HalamanTracingState extends State<HalamanTracing> {
       {required IconData icon,
       required VoidCallback onTap,
       bool isActive = false,
-      Color activeColor = Colors.black}) {
+      Color activeColor = Colors.black,
+      String? tooltip}) {
     return InkWell(
       onTap: onTap,
       child: Container(

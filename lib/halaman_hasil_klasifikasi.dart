@@ -4,7 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 import '../db/db_helper.dart';
 import '../utils/session.dart';
 import 'halaman_tracing.dart';
-import 'halaman_belajar2.dart'; // Import halaman belajar
+import 'halaman_belajar2.dart';
 
 class HalamanHasilKlasifikasi extends StatefulWidget {
   final String hijaiyahLetter;
