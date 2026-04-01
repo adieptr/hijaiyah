@@ -60,7 +60,6 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
     'ha': 'ya',
   };
 
-  // Pemetaan nama ke karakter untuk navigasi
   final Map<String, String> _nameToLetterMap = {
     'alif': 'ا',
     'ba': 'ب',
@@ -111,7 +110,7 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
     await DBHelper.instance.saveProgress(
       userId,
       widget.hijaiyahName.toLowerCase(),
-      accuracyPercent, 
+      accuracyPercent,
     );
 
     final history = await DBHelper.instance
@@ -302,12 +301,6 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                                 fontSize: MediaQuery.of(context).size.width * 0.1,
                                 fontWeight: FontWeight.bold,
                                 height: 1.2)),
-                        // Text(widget.hijaiyahName.toUpperCase(),
-                        //     style: const TextStyle(
-                        //         fontSize: 12,
-                        //         fontWeight: FontWeight.w900,
-                        //         letterSpacing: 3,
-                        //         color: Color(0xFF4A8C40))),
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 16),
                           child: Divider(color: Colors.black12, thickness: 1.5),
@@ -327,23 +320,46 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                         if (isLowAccuracy)
                           _buildComparisonView()
                         else
+                          // PERBAIKAN: Menampilkan tulisan user di sini jika akurasi tinggi
                           Container(
-                            padding: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(15),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFC7EFA3).withOpacity(0.2),
+                              color: const Color(0xFFE3F2FD), // Warna latar biru muda yang lembut
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                  color: const Color(0xFF6EDC68), width: 1),
+                                  color: const Color(0xFF2196F3), width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                )
+                              ],
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: Image.asset(
-                                'assets/images/hijaiyah_gif/${widget.hijaiyahName.toLowerCase()}.gif',
-                                width: 140,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(Icons.stars_rounded,
-                                        size: 60, color: Colors.amber),
-                              ),
+                            child: Column(
+                              children: [
+                                const Text(
+                                  "HASIL TULISANMU",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      color: Color(0xFF1976D2),
+                                      fontSize: 10,
+                                      letterSpacing: 1.5),
+                                ),
+                                const SizedBox(height: 10),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: widget.userDrawing != null
+                                      ? Image.memory(
+                                          widget.userDrawing!,
+                                          width: 160,
+                                          height: 160,
+                                          fit: BoxFit.contain,
+                                        )
+                                      : const Icon(Icons.stars_rounded,
+                                          size: 60, color: Colors.amber),
+                                ),
+                              ],
                             ),
                           ),
                       ],
@@ -378,7 +394,6 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                           "LANJUT HURUF ${_nextRecommendedLetter!.toUpperCase()}",
                       icon: Icons.skip_next,
                       onPressed: () {
-                        // Navigasi ke HalamanBelajar2 sesuai huruf berikutnya
                         String nextName = _nextRecommendedLetter!;
                         String nextLetter = _nameToLetterMap[nextName] ?? '';
 
@@ -397,8 +412,7 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                   _buildCustomButton(
                     text: "LATIHAN LAGI",
                     icon: Icons.refresh,
-                    onPressed: () => Navigator.pop(context,
-                        true), // Mengembalikan true untuk membersihkan kanvas
+                    onPressed: () => Navigator.pop(context, true),
                   ),
                   const SizedBox(height: 8),
                   GestureDetector(
