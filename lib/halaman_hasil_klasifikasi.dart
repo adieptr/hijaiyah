@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../db/db_helper.dart';
 import '../utils/session.dart';
 import 'halaman_tracing.dart';
@@ -8,7 +9,7 @@ import 'halaman_belajar2.dart';
 
 class HalamanHasilKlasifikasi extends StatefulWidget {
   final String hijaiyahLetter;
-  final String hijaiyahName;
+  final String hijaiyahName; // Tetap menggunakan 'alif', 'ba', dll untuk logika internal
   final double? confidence;
   final Uint8List? userDrawing;
 
@@ -30,65 +31,32 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
   bool _isMastered = false;
   String? _nextRecommendedLetter;
 
+  // Map untuk tampilan nama tunggal sesuai permintaan Anda
+  final Map<String, String> _hijaiyahDisplayMap = {
+    'alif': 'Alif', 'ba': "Ba'", 'ta': "Ta'", 'tsa': "Tsa'", 'jim': 'Jim',
+    'kha': "Ha'", 'kho': "Kho'", 'dal': 'Dal', 'dzal': 'Dzal', 'ro': "Ro'",
+    'za': 'Zaa', 'sin': 'Sin', 'syin': 'Syin', 'shod': 'Shod', 'dhod': 'Dhod',
+    'tho': "Tho'", 'dzo': "Zho'", 'ain': "'Ain", 'ghain': 'Ghain', 'fa': "Fa'",
+    'qof': 'Qof', 'kaf': 'Kaf', 'lam': 'Lam', 'mim': 'Mim', 'nun': 'Nun',
+    'wawu': 'Wawu', 'ha': "Ha'", 'ya': 'Ya',
+  };
+
   final Map<String, String> _visualSimilarityMap = {
-    'alif': 'ba',
-    'ba': 'ta',
-    'ta': 'tsa',
-    'tsa': 'jim',
-    'jim': 'kha',
-    'kha': 'kho',
-    'kho': 'dal',
-    'dal': 'dzal',
-    'dzal': 'ro',
-    'ro': 'za',
-    'za': 'sin',
-    'sin': 'syin',
-    'syin': 'shod',
-    'shod': 'dhod',
-    'dhod': 'tho',
-    'tho': 'dzo',
-    'dzo': 'ain',
-    'ain': 'ghain',
-    'ghain': 'fa',
-    'fa': 'qof',
-    'qof': 'kaf',
-    'kaf': 'lam',
-    'lam': 'mim',
-    'mim': 'nun',
-    'nun': 'wawu',
-    'wawu': 'ha',
-    'ha': 'ya',
+    'alif': 'ba', 'ba': 'ta', 'ta': 'tsa', 'tsa': 'jim', 'jim': 'kha',
+    'kha': 'kho', 'kho': 'dal', 'dal': 'dzal', 'dzal': 'ro', 'ro': 'za',
+    'za': 'sin', 'sin': 'syin', 'syin': 'shod', 'shod': 'dhod', 'dhod': 'tho',
+    'tho': 'dzo', 'dzo': 'ain', 'ain': 'ghain', 'ghain': 'fa', 'fa': 'qof',
+    'qof': 'kaf', 'kaf': 'lam', 'lam': 'mim', 'mim': 'nun', 'nun': 'wawu',
+    'wawu': 'ha', 'ha': 'ya',
   };
 
   final Map<String, String> _nameToLetterMap = {
-    'alif': 'ا',
-    'ba': 'ب',
-    'ta': 'ت',
-    'tsa': 'ث',
-    'jim': 'ج',
-    'kha': 'ح',
-    'kho': 'خ',
-    'dal': 'د',
-    'dzal': 'ذ',
-    'ro': 'ر',
-    'za': 'ز',
-    'sin': 'س',
-    'syin': 'ش',
-    'shod': 'ص',
-    'dhod': 'ض',
-    'tho': 'ط',
-    'dzo': 'ظ',
-    'ain': 'ع',
-    'ghain': 'غ',
-    'fa': 'ف',
-    'qof': 'ق',
-    'kaf': 'ك',
-    'lam': 'ل',
-    'mim': 'م',
-    'nun': 'ن',
-    'wawu': 'و',
-    'ha': 'ه',
-    'ya': 'ي',
+    'alif': 'ا', 'ba': 'ب', 'ta': 'ت', 'tsa': 'ث', 'jim': 'ج',
+    'kha': 'ح', 'kho': 'خ', 'dal': 'د', 'dzal': 'ذ', 'ro': 'ر',
+    'za': 'ز', 'sin': 'س', 'syin': 'ش', 'shod': 'ص', 'dhod': 'ض',
+    'tho': 'ط', 'dzo': 'ظ', 'ain': 'ع', 'ghain': 'غ', 'fa': 'ف',
+    'qof': 'ق', 'kaf': 'ك', 'lam': 'ل', 'mim': 'م', 'nun': 'ن',
+    'wawu': 'و', 'ha': 'ه', 'ya': 'ي',
   };
 
   @override
@@ -130,34 +98,13 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
 
   String getAudioPath() {
     final Map<String, String> audioMap = {
-      'alif': 'alif.mp3',
-      'ba': 'ba.mp3',
-      'ta': 'ta.mp3',
-      'tsa': 'tsa.mp3',
-      'jim': 'jim.mp3',
-      'kha': 'ha.mp3',
-      'kho': 'kho.mp3',
-      'dal': 'dal.mp3',
-      'dzal': 'dzal.mp3',
-      'ro': 'ro.mp3',
-      'za': 'za.mp3',
-      'sin': 'sin.mp3',
-      'syin': 'syin.mp3',
-      'shod': 'shod.mp3',
-      'dhod': 'dhod.mp3',
-      'tho': 'tho.mp3',
-      'dzo': 'dzo.mp3',
-      'ain': 'ain.mp3',
-      'ghain': 'ghain.mp3',
-      'fa': 'fa.mp3',
-      'qof': 'qof.mp3',
-      'kaf': 'kaf.mp3',
-      'lam': 'lam.mp3',
-      'mim': 'mim.mp3',
-      'nun': 'nun.mp3',
-      'wawu': 'wawu.mp3',
-      'ha': 'ha.mp3',
-      'ya': 'ya.mp3',
+      'alif': 'alif.mp3', 'ba': 'ba.mp3', 'ta': 'ta.mp3', 'tsa': 'tsa.mp3',
+      'jim': 'jim.mp3', 'kha': 'ha.mp3', 'kho': 'kho.mp3', 'dal': 'dal.mp3',
+      'dzal': 'dzal.mp3', 'ro': 'ro.mp3', 'za': 'za.mp3', 'sin': 'sin.mp3',
+      'syin': 'syin.mp3', 'shod': 'shod.mp3', 'dhod': 'dhod.mp3', 'tho': 'tho.mp3',
+      'dzo': 'dzo.mp3', 'ain': 'ain.mp3', 'ghain': 'ghain.mp3', 'fa': 'fa.mp3',
+      'qof': 'qof.mp3', 'kaf': 'kaf.mp3', 'lam': 'lam.mp3', 'mim': 'mim.mp3',
+      'nun': 'nun.mp3', 'wawu': 'wawu.mp3', 'ha': 'ha.mp3', 'ya': 'ya.mp3',
     };
     String key = widget.hijaiyahName.toLowerCase();
     return 'assets/hijaiyah_sound/${audioMap[key] ?? 'alif.mp3'}';
@@ -261,6 +208,12 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
+    // Logika penentuan nama tampilan (Display Name)
+    String displayName = _hijaiyahDisplayMap[widget.hijaiyahName.toLowerCase()] ?? widget.hijaiyahName;
+    
+    // Logika Underline khusus untuk huruf Ha' (ح) yang menggunakan kunci 'kha'
+    bool isSpecialHa = widget.hijaiyahName.toLowerCase() == 'kha';
+
     return Scaffold(
       body: Stack(
         children: [
@@ -296,19 +249,32 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (_isMastered) const BadgeMastered(),
-                        Text(widget.hijaiyahLetter,
-                            style: TextStyle(
-                                fontSize: MediaQuery.of(context).size.width * 0.1,
-                                fontWeight: FontWeight.bold,
-                                height: 1.2)),
+                        
+                        // BAGIAN YANG DIHAPUS: Simbol/Nama bold di atas kini ditiadakan agar tidak dobel.
+                        
+                        const SizedBox(height: 10),
+
+                        // Menampilkan Nama Huruf Tunggal (Format Sesuai Permintaan)
+                        Text(
+                          displayName,
+                          style: GoogleFonts.poppins(
+                            fontSize: 32, // Ukuran diperbesar karena menjadi judul tunggal
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF4A8C40),
+                            decoration: isSpecialHa ? TextDecoration.underline : TextDecoration.none,
+                            decorationThickness: 2,
+                          ),
+                        ),
+
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 16),
                           child: Divider(color: Colors.black12, thickness: 1.5),
                         ),
+                        
                         Text(
                           getResponseText(),
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: GoogleFonts.poppins(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                             color: isLowAccuracy
@@ -320,11 +286,10 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                         if (isLowAccuracy)
                           _buildComparisonView()
                         else
-                          // PERBAIKAN: Menampilkan tulisan user di sini jika akurasi tinggi
                           Container(
                             padding: const EdgeInsets.all(15),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE3F2FD), // Warna latar biru muda yang lembut
+                              color: const Color(0xFFE3F2FD),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
                                   color: const Color(0xFF2196F3), width: 2),
@@ -390,24 +355,24 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                     ),
                   if (_isMastered && _nextRecommendedLetter != null)
                     _buildCustomButton(
-                      text:
-                          "LANJUT HURUF ${_nextRecommendedLetter!.toUpperCase()}",
+                      text: "LANJUT HURUF ${_hijaiyahDisplayMap[_nextRecommendedLetter!]?.toUpperCase() ?? _nextRecommendedLetter!.toUpperCase()}",
                       icon: Icons.skip_next,
                       onPressed: () {
                         String nextName = _nextRecommendedLetter!;
                         String nextLetter = _nameToLetterMap[nextName] ?? '';
+                        String nextDisplay = _hijaiyahDisplayMap[nextName] ?? nextName;
 
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => HalamanBelajar2(
                               hijaiyahLetter: nextLetter,
-                              description:
-                                  "Belajar Huruf ${nextName[0].toUpperCase()}${nextName.substring(1)}",
+                              description: "Belajar Huruf $nextDisplay",
                             ),
                           ),
                         );
                       },
+                      isUnderlined: _nextRecommendedLetter == 'kha',
                     ),
                   _buildCustomButton(
                     text: "LATIHAN LAGI",
@@ -440,6 +405,7 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
     required String text,
     required VoidCallback onPressed,
     IconData? icon,
+    bool isUnderlined = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -469,10 +435,12 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
               ],
               Text(
                 text,
-                style: const TextStyle(
+                style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF4A8C40),
+                  color: const Color(0xFF4A8C40),
+                  decoration: isUnderlined ? TextDecoration.underline : TextDecoration.none,
+                  decorationThickness: 2,
                 ),
               ),
             ],

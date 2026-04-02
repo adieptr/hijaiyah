@@ -24,6 +24,7 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   String? fullname;
 
+  // Nama file tetap dipertahankan agar tidak merusak sistem aset dan TFLite
   final Map<String, String> _hijaiyahFileNameMap = {
     'ا': 'alif', 'ب': 'ba', 'ت': 'ta', 'ث': 'tsa', 'ج': 'jim',
     'ح': 'kha', 'خ': 'kho', 'د': 'dal', 'ذ': 'dzal', 'ر': 'ro',
@@ -31,6 +32,16 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
     'ط': 'tho', 'ظ': 'dzo', 'ع': 'ain', 'غ': 'ghain', 'ف': 'fa',
     'ق': 'qof', 'ك': 'kaf', 'ل': 'lam', 'م': 'mim', 'ن': 'nun',
     'و': 'wawu', 'ه': 'ha', 'ي': 'ya',
+  };
+
+  // Nama tampilan baru sesuai permintaan user
+  final Map<String, String> _hijaiyahDisplayNameMap = {
+    'ا': 'Alif', 'ب': "Ba'", 'ت': "Ta'", 'ث': "Tsa'", 'ج': 'Jim',
+    'ح': "Ha'", 'خ': "Kho'", 'د': 'Dal', 'ذ': 'Dzal', 'ر': "Ro'",
+    'ز': 'Zaa', 'س': 'Sin', 'ش': 'Syin', 'ص': 'Shod', 'ض': 'Dhod',
+    'ط': "Tho'", 'ظ': "Zho'", 'ع': "'Ain", 'غ': 'Ghain', 'ف': "Fa'",
+    'ق': 'Qof', 'ك': 'Kaf', 'ل': 'Lam', 'م': 'Mim', 'ن': 'Nun',
+    'و': 'Wawu', 'ه': "Ha'", 'ي': 'Ya',
   };
 
   @override
@@ -154,6 +165,9 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
 
+    // Ambil nama tampilan baru berdasarkan huruf hijaiyah
+    String displayName = _hijaiyahDisplayNameMap[widget.hijaiyahLetter] ?? widget.description;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -172,7 +186,7 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 60), // Memberi ruang untuk tombol di atas
+                  const SizedBox(height: 60), 
                   Container(
                     width: screenWidth * 0.85,
                     height: screenHeight * 0.40,
@@ -224,13 +238,20 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
                     ),
                   ),
                   SizedBox(height: screenHeight * 0.02),
+                  // Tampilan Deskripsi Nama Huruf
                   Text(
-                    widget.description,
+                    displayName,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
-                      fontSize: screenWidth * 0.05,
+                      fontSize: screenWidth * 0.08, // Diperbesar sedikit agar lebih jelas
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
+                      // Memberikan underline khusus untuk huruf Ha' (ح) sesuai permintaan
+                      decoration: widget.hijaiyahLetter == 'ح' 
+                          ? TextDecoration.underline 
+                          : TextDecoration.none,
+                      decorationColor: Colors.white,
+                      decorationThickness: 2,
                       shadows: [
                         Shadow(
                           blurRadius: 5.0,
@@ -301,7 +322,7 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
             ),
           ),
 
-          // TOMBOL BANTUAN (Pojok Kiri Atas)
+          // TOMBOL BANTUAN
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             left: 16,
@@ -357,7 +378,7 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
             ),
           ),
 
-          // TOMBOL PROFIL (Pojok Kanan Atas)
+          // TOMBOL PROFIL
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             right: 16,
@@ -367,7 +388,7 @@ class _HalamanBelajar2State extends State<HalamanBelajar2> {
                   context,
                   MaterialPageRoute(builder: (_) => const ProfilPage()),
                 );
-                loadUser(); // Refresh nama saat kembali
+                loadUser(); 
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,

@@ -65,6 +65,11 @@ class HijaiyahButton extends StatelessWidget {
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFF4A7C44),
+                  // Logika Underline khusus untuk huruf Ha' (ح)
+                  decoration: hijaiyahLetter == 'ح' 
+                      ? TextDecoration.underline 
+                      : TextDecoration.none,
+                  decorationThickness: 2,
                 ),
               ),
             ),
@@ -87,34 +92,35 @@ class _BelajarScreenState extends State<BelajarScreen> {
   int currentPage = 0;
   String? fullname;
 
+  // Data Huruf dengan penamaan baru sesuai permintaan
   final List<List<Map<String, String>>> pages = [
     [
       {'letter': 'ا', 'text': 'Belajar Huruf Alif'},
-      {'letter': 'ب', 'text': 'Belajar Huruf Ba'},
-      {'letter': 'ت', 'text': 'Belajar Huruf Ta'},
-      {'letter': 'ث', 'text': 'Belajar Huruf Tsa'},
+      {'letter': 'ب', 'text': "Belajar Huruf Ba'"},
+      {'letter': 'ت', 'text': "Belajar Huruf Ta'"},
+      {'letter': 'ث', 'text': "Belajar Huruf Tsa'"},
       {'letter': 'ج', 'text': 'Belajar Huruf Jim'},
     ],
     [
-      {'letter': 'ح', 'text': 'Belajar Huruf Kha'},
-      {'letter': 'خ', 'text': 'Belajar Huruf Kho'},
+      {'letter': 'ح', 'text': "Belajar Huruf Ha'"},
+      {'letter': 'خ', 'text': "Belajar Huruf Kho'"},
       {'letter': 'د', 'text': 'Belajar Huruf Dal'},
       {'letter': 'ذ', 'text': 'Belajar Huruf Dzal'},
-      {'letter': 'ر', 'text': 'Belajar Huruf Ro'},
+      {'letter': 'ر', 'text': "Belajar Huruf Ro'"},
     ],
     [
-      {'letter': 'ز', 'text': 'Belajar Huruf Za'},
+      {'letter': 'ز', 'text': 'Belajar Huruf Zaa'},
       {'letter': 'س', 'text': 'Belajar Huruf Sin'},
       {'letter': 'ش', 'text': 'Belajar Huruf Syin'},
       {'letter': 'ص', 'text': 'Belajar Huruf Shod'},
       {'letter': 'ض', 'text': 'Belajar Huruf Dhod'},
     ],
     [
-      {'letter': 'ط', 'text': 'Belajar Huruf Tho'},
-      {'letter': 'ظ', 'text': 'Belajar Huruf Dzo'},
-      {'letter': 'ع', 'text': 'Belajar Huruf Ain'},
+      {'letter': 'ط', 'text': "Belajar Huruf Tho'"},
+      {'letter': 'ظ', 'text': "Belajar Huruf Zho'"},
+      {'letter': 'ع', 'text': "Belajar Huruf 'Ain"},
       {'letter': 'غ', 'text': 'Belajar Huruf Ghain'},
-      {'letter': 'ف', 'text': 'Belajar Huruf Fa'},
+      {'letter': 'ف', 'text': "Belajar Huruf Fa'"},
     ],
     [
       {'letter': 'ق', 'text': 'Belajar Huruf Qof'},
@@ -125,7 +131,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
     ],
     [
       {'letter': 'و', 'text': 'Belajar Huruf Wawu'},
-      {'letter': 'ه', 'text': 'Belajar Huruf Ha'},
+      {'letter': 'ه', 'text': "Belajar Huruf Ha'"},
       {'letter': 'ي', 'text': 'Belajar Huruf Ya'},
     ],
   ];
@@ -245,7 +251,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
             child: Container(color: Colors.black.withOpacity(0.1)),
           ),
           
-          // Konten Utama (ListView & Navigation)
+          // Konten Utama
           Column(
             children: [
               const SizedBox(height: 100),
@@ -355,7 +361,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
             ],
           ),
 
-          // TOMBOL BANTUAN (Pojok Kiri Atas)
+          // TOMBOL BANTUAN
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             left: 16,
@@ -411,7 +417,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
             ),
           ),
 
-          // TOMBOL PROFIL (Pojok Kanan Atas)
+          // TOMBOL PROFIL
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             right: 16,
@@ -421,7 +427,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
                   context,
                   MaterialPageRoute(builder: (_) => const ProfilPage()),
                 );
-                loadUser(); // Refresh data saat kembali dari halaman profil
+                loadUser(); 
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
