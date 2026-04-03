@@ -339,12 +339,6 @@ class _HalamanTracingState extends State<HalamanTracing> {
     );
   }
 
-  Future<void> _navigateTo(Widget page) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => page),
-    );
-  }
 
   Future<void> _calculateScore() async {
     if (_strokes.isEmpty) {
