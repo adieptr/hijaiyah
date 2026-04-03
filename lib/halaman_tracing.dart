@@ -445,17 +445,6 @@ class _HalamanTracingState extends State<HalamanTracing> {
       if (finalScore > 100) finalScore = 100;
       if (recall < 0.05 || fScore < 0.05) finalScore = 0;
 
-      // Logika Penyimpanan (Contoh mode: 'tracing')
-      // final int? userId = await Session.getUser();
-      // if (userId != null) {
-      //   await DBHelper.instance.saveProgress(
-      //     userId,
-      //     widget.hijaiyahName.toLowerCase(),
-      //     finalScore,
-      //     mode: 'tracing',
-      //   );
-      // }
-
       setState(() => _isCalculating = false);
       _showScoreDialog(finalScore);
     } catch (e) {
@@ -535,7 +524,13 @@ class _HalamanTracingState extends State<HalamanTracing> {
             _buildLargeButton(
                 text: "Selesai",
                 onTap: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context); // Tutup dialog
+                  // Pindah ke Halaman Latihan dan hapus tumpukan navigasi sebelumnya 
+                  // agar kembali ke menu pilihan huruf/latihan
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HalamanLatihan()),
+                  );
                 },
                 widthMultiplier: 0.65),
           ],

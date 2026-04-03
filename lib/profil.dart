@@ -17,34 +17,8 @@ class _ProfilPageState extends State<ProfilPage> {
   bool isLoading = true;
 
   final List<String> allLetters = [
-    'ا',
-    'ب',
-    'ت',
-    'ث',
-    'ج',
-    'ح',
-    'خ',
-    'د',
-    'ذ',
-    'ر',
-    'ز',
-    'س',
-    'ش',
-    'ص',
-    'ض',
-    'ط',
-    'ظ',
-    'ع',
-    'غ',
-    'ف',
-    'ق',
-    'ك',
-    'ل',
-    'م',
-    'ن',
-    'و',
-    'ه',
-    'ي'
+    'ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص',
+    'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'و', 'ه', 'ي'
   ];
 
   @override
@@ -61,7 +35,8 @@ class _ProfilPageState extends State<ProfilPage> {
 
       final Map<String, Map<String, dynamic>> uniqueProgress = {};
       for (var item in progressData) {
-        String huruf = item['huruf'].toString().toLowerCase();
+        // Normalisasi untuk pencocokan data DB
+        String huruf = _normalize(item['huruf'].toString());
         uniqueProgress[huruf] = item;
       }
 
@@ -73,6 +48,11 @@ class _ProfilPageState extends State<ProfilPage> {
     } else {
       setState(() => isLoading = false);
     }
+  }
+
+  // Fungsi pembantu untuk mencocokkan nama dari DB dengan nama di UI
+  String _normalize(String text) {
+    return text.toLowerCase().replaceAll("'", "").trim();
   }
 
   Future<void> _handleLogout() async {
@@ -118,41 +98,42 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   bool isLetterLearned(String letter) {
-    return progressList.any((element) =>
-        element['huruf'].toString().toLowerCase() ==
-        _getLetterName(letter).toLowerCase());
+    String currentName = _normalize(_getLetterName(letter));
+    return progressList.any((element) => 
+      _normalize(element['huruf'].toString()) == currentName
+    );
   }
 
   String _getLetterName(String char) {
     final Map<String, String> nameMap = {
-      'ا': 'alif',
-      'ب': 'ba',
-      'ت': 'ta',
-      'ث': 'tsa',
-      'ج': 'jim',
-      'ح': 'kha',
-      'خ': 'kho',
-      'د': 'dal',
-      'ذ': 'dzal',
-      'ر': 'ro',
-      'ز': 'za',
-      'س': 'sin',
-      'ش': 'syin',
-      'ص': 'shod',
-      'ض': 'dhod',
-      'ط': 'tho',
-      'ظ': 'dzo',
-      'ع': 'ain',
-      'غ': 'ghain',
-      'ف': 'fa',
-      'ق': 'qof',
-      'ك': 'kaf',
-      'ل': 'lam',
-      'م': 'mim',
-      'ن': 'nun',
-      'و': 'wawu',
-      'ه': 'ha',
-      'ي': 'ya',
+      'ا': 'Alif',
+      'ب': "Ba'",
+      'ت': "Ta'",
+      'ث': "Tsa'",
+      'ج': 'Jim',
+      'ح': "Ha'", // Huruf Ha kecil (akan di-underline di UI)
+      'خ': "Kho'",
+      'د': 'Dal',
+      'ذ': 'Dzal',
+      'ر': "Ro'",
+      'ز': 'Zaa',
+      'س': 'Sin',
+      'ش': 'Syin',
+      'ص': 'Shod',
+      'ض': 'Dhod',
+      'ط': "Tho'",
+      'ظ': "Zho'",
+      'ع': "'Ain",
+      'غ': 'Ghain',
+      'ف': "Fa'",
+      'ق': 'Qof',
+      'ك': 'Kaf',
+      'ل': 'Lam',
+      'م': 'Mim',
+      'ن': 'Nun',
+      'و': 'Wawu',
+      'ه': "Ha'", // Huruf Ha besar
+      'ي': "Ya'",
     };
     return nameMap[char] ?? char;
   }
@@ -298,40 +279,63 @@ class _ProfilPageState extends State<ProfilPage> {
                         ),
                         const SizedBox(height: 15),
                         Expanded(
-                          flex: 3,
+                          flex: 4,
                           child: GridView.builder(
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 7,
-                              mainAxisSpacing: 8,
-                              crossAxisSpacing: 8,
+                              crossAxisCount: 4, // Diubah menjadi 4 agar teks nama terlihat jelas
+                              mainAxisSpacing: 10,
+                              crossAxisSpacing: 10,
+                              childAspectRatio: 0.85, // Menyesuaikan tinggi untuk teks di bawah
                             ),
                             itemCount: allLetters.length,
                             itemBuilder: (context, index) {
-                              bool learned = isLetterLearned(allLetters[index]);
+                              String char = allLetters[index];
+                              String name = _getLetterName(char);
+                              bool learned = isLetterLearned(char);
+                              
+                              // Khusus untuk Ha' urutan ke-6 (huruf ح) diberi underline
+                              bool isSpecialHa = (char == 'ح');
+
                               return Container(
                                 decoration: BoxDecoration(
                                   color: learned
                                       ? const Color(0xFFC7EFA3)
                                       : Colors.grey.shade200,
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                       color: learned
                                           ? const Color(0xFF6EDC68)
                                           : Colors.grey.shade400,
                                       width: 1.5),
                                 ),
-                                child: Center(
-                                  child: Text(
-                                    allLetters[index],
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: learned
-                                          ? const Color(0xFF4A8C40)
-                                          : Colors.grey,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      char,
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: learned
+                                            ? const Color(0xFF4A8C40)
+                                            : Colors.grey,
+                                      ),
                                     ),
-                                  ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      name,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        decoration: isSpecialHa ? TextDecoration.underline : TextDecoration.none,
+                                        color: learned
+                                            ? const Color(0xFF4A8C40).withOpacity(0.8)
+                                            : Colors.grey,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               );
                             },
@@ -352,11 +356,11 @@ class _ProfilPageState extends State<ProfilPage> {
                                   alignment: Alignment.center,
                                   children: [
                                     SizedBox(
-                                      width: 100,
-                                      height: 100,
+                                      width: 90,
+                                      height: 90,
                                       child: CircularProgressIndicator(
                                         value: avgAccuracy / 100,
-                                        strokeWidth: 12,
+                                        strokeWidth: 10,
                                         backgroundColor:
                                             Colors.lightGreen.shade100,
                                         color: Colors.green,
@@ -368,11 +372,11 @@ class _ProfilPageState extends State<ProfilPage> {
                                         Text(
                                           "${avgAccuracy.toStringAsFixed(0)}%",
                                           style: const TextStyle(
-                                              fontSize: 22,
+                                              fontSize: 20,
                                               fontWeight: FontWeight.bold),
                                         ),
                                         const Text("Benar",
-                                            style: TextStyle(fontSize: 12)),
+                                            style: TextStyle(fontSize: 11)),
                                       ],
                                     )
                                   ],
@@ -410,13 +414,13 @@ class _ProfilPageState extends State<ProfilPage> {
                                                   Text(
                                                       "${item['huruf'].toString().toUpperCase()}:",
                                                       style: const TextStyle(
-                                                          fontSize: 13,
+                                                          fontSize: 12,
                                                           fontWeight:
                                                               FontWeight.bold)),
                                                   Text(
                                                       "${(item['accuracy'] as num).toStringAsFixed(0)}%",
                                                       style: const TextStyle(
-                                                          fontSize: 13,
+                                                          fontSize: 12,
                                                           color: Colors.green,
                                                           fontWeight:
                                                               FontWeight.w600)),
@@ -435,13 +439,13 @@ class _ProfilPageState extends State<ProfilPage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 100),
+                  padding: const EdgeInsets.only(bottom: 50),
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFC7EFA3),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 70, vertical: 25),
+                          horizontal: 70, vertical: 20),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                         side: const BorderSide(
@@ -455,7 +459,7 @@ class _ProfilPageState extends State<ProfilPage> {
                       style: TextStyle(
                         color: Color(0xFF4A8C40),
                         fontWeight: FontWeight.bold,
-                        fontSize: 25.0,
+                        fontSize: 22.0,
                       ),
                     ),
                   ),

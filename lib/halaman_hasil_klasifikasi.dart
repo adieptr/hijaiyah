@@ -9,7 +9,7 @@ import 'halaman_belajar2.dart';
 
 class HalamanHasilKlasifikasi extends StatefulWidget {
   final String hijaiyahLetter;
-  final String hijaiyahName; // Tetap menggunakan 'alif', 'ba', dll untuk logika internal
+  final String hijaiyahName; // Nama internal (alif, ba, dst)
   final double? confidence;
   final Uint8List? userDrawing;
 
@@ -29,9 +29,10 @@ class HalamanHasilKlasifikasi extends StatefulWidget {
 class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isMastered = false;
+  bool _showLetterPicker = false; 
   String? _nextRecommendedLetter;
 
-  // Map untuk tampilan nama tunggal sesuai permintaan Anda
+  // Pemetaan nama sesuai permintaan
   final Map<String, String> _hijaiyahDisplayMap = {
     'alif': 'Alif', 'ba': "Ba'", 'ta': "Ta'", 'tsa': "Tsa'", 'jim': 'Jim',
     'kha': "Ha'", 'kho': "Kho'", 'dal': 'Dal', 'dzal': 'Dzal', 'ro': "Ro'",
@@ -97,17 +98,8 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
   }
 
   String getAudioPath() {
-    final Map<String, String> audioMap = {
-      'alif': 'alif.mp3', 'ba': 'ba.mp3', 'ta': 'ta.mp3', 'tsa': 'tsa.mp3',
-      'jim': 'jim.mp3', 'kha': 'ha.mp3', 'kho': 'kho.mp3', 'dal': 'dal.mp3',
-      'dzal': 'dzal.mp3', 'ro': 'ro.mp3', 'za': 'za.mp3', 'sin': 'sin.mp3',
-      'syin': 'syin.mp3', 'shod': 'shod.mp3', 'dhod': 'dhod.mp3', 'tho': 'tho.mp3',
-      'dzo': 'dzo.mp3', 'ain': 'ain.mp3', 'ghain': 'ghain.mp3', 'fa': 'fa.mp3',
-      'qof': 'qof.mp3', 'kaf': 'kaf.mp3', 'lam': 'lam.mp3', 'mim': 'mim.mp3',
-      'nun': 'nun.mp3', 'wawu': 'wawu.mp3', 'ha': 'ha.mp3', 'ya': 'ya.mp3',
-    };
     String key = widget.hijaiyahName.toLowerCase();
-    return 'assets/hijaiyah_sound/${audioMap[key] ?? 'alif.mp3'}';
+    return 'assets/hijaiyah_sound/$key.mp3';
   }
 
   Future<void> playSound() async {
@@ -121,7 +113,7 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
 
   String getResponseText() {
     if (isLowAccuracy) {
-      return "Tulisannya hampir mirip, tapi perlu sedikit perbaikan.\nCoba bandingkan dengan contoh di bawah ini.";
+      return "Tulisanmu masih belum mirip apakah kamu berniat menulis huruf ini?";
     } else if (_isMastered) {
       return "Luar Biasa! Kamu sudah bisa menulis huruf ini.\nSiap lanjut ke tantangan berikutnya?";
     } else {
@@ -135,71 +127,71 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
     super.dispose();
   }
 
-  Widget _buildComparisonView() {
+  Widget _buildLetterSelectionGrid() {
     return Column(
       children: [
-        const Text(
-          "PERBANDINGAN",
-          style: TextStyle(
-              fontWeight: FontWeight.w900,
-              color: Colors.grey,
-              fontSize: 12,
-              letterSpacing: 1.2),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildComparisonCard(
-              title: "TULISANMU",
-              child: widget.userDrawing != null
-                  ? Image.memory(
-                      widget.userDrawing!,
-                      fit: BoxFit.contain,
-                    )
-                  : const Icon(Icons.edit, size: 40, color: Colors.grey),
-              color: Colors.blue.shade50,
-            ),
-            const Icon(Icons.compare_arrows,
-                color: Color(0xFF6EDC68), size: 30),
-            _buildComparisonCard(
-              title: "REFERENSI",
-              child: Image.asset(
-                'assets/images/hijaiyah/${widget.hijaiyahName.toLowerCase()}.png',
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.image_not_supported),
-              ),
-              color: const Color(0xFFC7EFA3).withOpacity(0.3),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildComparisonCard(
-      {required String title, required Widget child, required Color color}) {
-    double boxSize = MediaQuery.of(context).size.width * 0.31;
-    return Column(
-      children: [
-        Container(
-          width: boxSize,
-          height: boxSize,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: Colors.black, width: 1.5),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 12.0),
+          child: Text(
+            "PILIH HURUF YANG KAMU MAKSUD:",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
           ),
-          child: child,
         ),
-        const SizedBox(height: 6),
-        Text(title,
-            style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w900,
-                color: Colors.black54)),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          alignment: WrapAlignment.center,
+          children: _nameToLetterMap.entries.map((entry) {
+            String name = _hijaiyahDisplayMap[entry.key] ?? entry.key;
+            bool isUnderlineHa = (entry.key == 'kha');
+
+            return InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HalamanTracing(
+                      hijaiyahLetter: entry.value,
+                      hijaiyahName: entry.key,
+                    ),
+                  ),
+                );
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 45,
+                    height: 45,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF6EDC68), width: 1.5),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))
+                      ],
+                    ),
+                    child: Text(
+                      entry.value,
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      decoration: isUnderlineHa ? TextDecoration.underline : TextDecoration.none,
+                      color: Colors.grey.shade700,
+                    ),
+                  )
+                ],
+              ),
+            );
+          }).toList(),
+        ),
       ],
     );
   }
@@ -207,12 +199,8 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-
-    // Logika penentuan nama tampilan (Display Name)
     String displayName = _hijaiyahDisplayMap[widget.hijaiyahName.toLowerCase()] ?? widget.hijaiyahName;
-    
-    // Logika Underline khusus untuk huruf Ha' (ح) yang menggunakan kunci 'kha'
-    bool isSpecialHa = widget.hijaiyahName.toLowerCase() == 'kha';
+    bool isSpecialHa = (widget.hijaiyahName.toLowerCase() == 'kha');
 
     return Scaffold(
       body: Stack(
@@ -249,28 +237,8 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (_isMastered) const BadgeMastered(),
-                        
-                        // BAGIAN YANG DIHAPUS: Simbol/Nama bold di atas kini ditiadakan agar tidak dobel.
-                        
                         const SizedBox(height: 10),
 
-                        // Menampilkan Nama Huruf Tunggal (Format Sesuai Permintaan)
-                        Text(
-                          displayName,
-                          style: GoogleFonts.poppins(
-                            fontSize: 32, // Ukuran diperbesar karena menjadi judul tunggal
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF4A8C40),
-                            decoration: isSpecialHa ? TextDecoration.underline : TextDecoration.none,
-                            decorationThickness: 2,
-                          ),
-                        ),
-
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: Divider(color: Colors.black12, thickness: 1.5),
-                        ),
-                        
                         Text(
                           getResponseText(),
                           textAlign: TextAlign.center,
@@ -282,85 +250,107 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                                 : const Color(0xFF4A8C40),
                           ),
                         ),
+
                         const SizedBox(height: 24),
-                        if (isLowAccuracy)
-                          _buildComparisonView()
-                        else
+
+                        if (isLowAccuracy && _showLetterPicker)
+                          _buildLetterSelectionGrid(),
+
+                        if (!_showLetterPicker) ...[
+                          // Bingkai Utama
                           Container(
-                            padding: const EdgeInsets.all(15),
+                            padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE3F2FD),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                  color: const Color(0xFF2196F3), width: 2),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                )
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                const Text(
-                                  "HASIL TULISANMU",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      color: Color(0xFF1976D2),
-                                      fontSize: 10,
-                                      letterSpacing: 1.5),
-                                ),
-                                const SizedBox(height: 10),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(15),
-                                  child: widget.userDrawing != null
-                                      ? Image.memory(
-                                          widget.userDrawing!,
-                                          width: 160,
-                                          height: 160,
-                                          fit: BoxFit.contain,
-                                        )
-                                      : const Icon(Icons.stars_rounded,
-                                          size: 60, color: Colors.amber),
-                                ),
-                              ],
+                                color: isLowAccuracy ? Colors.red.shade50 : const Color(0xFFF1F8E9),
+                                shape: BoxShape.rectangle,
+                                borderRadius: BorderRadius.circular(25),
+                                border: Border.all(
+                                    color: isLowAccuracy ? Colors.red.shade200 : const Color(0xFFC7EFA3),
+                                    width: 3)),
+                            child: isLowAccuracy
+                                ? Image.asset(
+                                    'assets/images/hijaiyah/${widget.hijaiyahName.toLowerCase()}.png',
+                                    height: 120,
+                                    fit: BoxFit.contain,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        const Icon(Icons.image_not_supported, size: 60),
+                                  )
+                                : (widget.userDrawing != null
+                                    ? Image.memory(
+                                        widget.userDrawing!,
+                                        height: 120,
+                                        fit: BoxFit.contain,
+                                      )
+                                    : const Icon(Icons.edit, size: 60, color: Colors.grey)),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            displayName,
+                            style: GoogleFonts.poppins(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              decoration: isSpecialHa ? TextDecoration.underline : TextDecoration.none,
+                              color: isLowAccuracy ? Colors.red.shade700 : const Color(0xFF4A8C40),
                             ),
                           ),
+
+                          if (isLowAccuracy)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 24, bottom: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _buildDecisionButton(
+                                    label: "YA",
+                                    color: const Color.fromARGB(255, 37, 174, 30),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => HalamanTracing(
+                                            hijaiyahLetter: widget.hijaiyahLetter,
+                                            hijaiyahName: widget.hijaiyahName,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 15),
+                                  _buildDecisionButton(
+                                    label: "TIDAK",
+                                    color: const Color.fromARGB(255, 206, 77, 77),
+                                    onTap: () {
+                                      setState(() {
+                                        _showLetterPicker = true;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
                       ],
                     ),
                   ),
                   const SizedBox(height: 32),
+                  
                   if (!isLowAccuracy)
                     _buildCustomButton(
                       text: "DENGARKAN SUARA",
                       onPressed: playSound,
                       icon: Icons.volume_up,
                     ),
-                  if (isLowAccuracy)
-                    _buildCustomButton(
-                      text: "COBA MODE TRACING",
-                      icon: Icons.auto_fix_high,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HalamanTracing(
-                              hijaiyahLetter: widget.hijaiyahLetter,
-                              hijaiyahName: widget.hijaiyahName,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+
                   if (_isMastered && _nextRecommendedLetter != null)
                     _buildCustomButton(
-                      text: "LANJUT HURUF ${_hijaiyahDisplayMap[_nextRecommendedLetter!]?.toUpperCase() ?? _nextRecommendedLetter!.toUpperCase()}",
+                      text:
+                          "LANJUT HURUF ${(_hijaiyahDisplayMap[_nextRecommendedLetter!] ?? _nextRecommendedLetter!).toUpperCase()}",
                       icon: Icons.skip_next,
                       onPressed: () {
                         String nextName = _nextRecommendedLetter!;
                         String nextLetter = _nameToLetterMap[nextName] ?? '';
-                        String nextDisplay = _hijaiyahDisplayMap[nextName] ?? nextName;
+                        String nextDisplay =
+                            _hijaiyahDisplayMap[nextName] ?? nextName;
 
                         Navigator.push(
                           context,
@@ -374,15 +364,17 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                       },
                       isUnderlined: _nextRecommendedLetter == 'kha',
                     ),
+
                   _buildCustomButton(
                     text: "LATIHAN LAGI",
                     icon: Icons.refresh,
                     onPressed: () => Navigator.pop(context, true),
                   ),
+                  
                   const SizedBox(height: 8),
                   GestureDetector(
-                    onTap: () => Navigator.of(context)
-                        .popUntil((route) => route.isFirst),
+                    onTap: () =>
+                        Navigator.of(context).popUntil((route) => route.isFirst),
                     child: const Text("Kembali ke Menu Utama",
                         style: TextStyle(
                           color: Colors.white,
@@ -397,6 +389,37 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDecisionButton(
+      {required String label,
+      required Color color,
+      required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: 80,
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.black.withOpacity(0.1), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2))
+          ],
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+        ),
       ),
     );
   }
@@ -433,14 +456,19 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                 Icon(icon, color: const Color(0xFF4A8C40), size: 20),
                 const SizedBox(width: 10),
               ],
-              Text(
-                text,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  color: const Color(0xFF4A8C40),
-                  decoration: isUnderlined ? TextDecoration.underline : TextDecoration.none,
-                  decorationThickness: 2,
+              Flexible(
+                child: Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF4A8C40),
+                    decoration: isUnderlined
+                        ? TextDecoration.underline
+                        : TextDecoration.none,
+                    decorationThickness: 2,
+                  ),
                 ),
               ),
             ],
