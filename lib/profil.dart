@@ -35,7 +35,6 @@ class _ProfilPageState extends State<ProfilPage> {
 
       final Map<String, Map<String, dynamic>> uniqueProgress = {};
       for (var item in progressData) {
-        // Normalisasi untuk pencocokan data DB
         String huruf = _normalize(item['huruf'].toString());
         uniqueProgress[huruf] = item;
       }
@@ -50,9 +49,81 @@ class _ProfilPageState extends State<ProfilPage> {
     }
   }
 
-  // Fungsi pembantu untuk mencocokkan nama dari DB dengan nama di UI
   String _normalize(String text) {
     return text.toLowerCase().replaceAll("'", "").trim();
+  }
+
+  // Dialog Bantuan untuk Halaman Profil
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: Color(0xFF6EDC68), width: 2),
+          ),
+          backgroundColor: const Color(0xFFC7EFA3),
+          title: Text(
+            'Informasi Profil',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF4A8C40),
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHelpItem(
+                'Progress Belajar:',
+                'Menampilkan huruf-huruf yang sudah pernah kamu tulis dan deteksi.',
+              ),
+              const SizedBox(height: 12),
+              _buildHelpItem(
+                'Akurasi:',
+                'Persentase rata-rata seberapa akurat tulisanmu dibandingkan dengan pola asli.',
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Mengerti',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF4A8C40),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildHelpItem(String title, String description) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: const Color(0xFF4A8C40),
+          ),
+        ),
+        Text(
+          description,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.black87,
+          ),
+        ),
+      ],
+    );
   }
 
   Future<void> _handleLogout() async {
@@ -111,7 +182,7 @@ class _ProfilPageState extends State<ProfilPage> {
       'ت': "Ta'",
       'ث': "Tsa'",
       'ج': 'Jim',
-      'ح': "Ha'", // Huruf Ha kecil (akan di-underline di UI)
+      'ح': "Ha'", // Underline in UI
       'خ': "Kho'",
       'د': 'Dal',
       'ذ': 'Dzal',
@@ -132,7 +203,7 @@ class _ProfilPageState extends State<ProfilPage> {
       'م': 'Mim',
       'ن': 'Nun',
       'و': 'Wawu',
-      'ه': "Ha'", // Huruf Ha besar
+      'ه': "Ha'",
       'ي': "Ya'",
     };
     return nameMap[char] ?? char;
@@ -162,19 +233,63 @@ class _ProfilPageState extends State<ProfilPage> {
             child: Column(
               children: [
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Apa Yang Sudah Kamu\nPelajari?",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      // Tombol Bantuan (Ganti teks judul lama)
+                      GestureDetector(
+                        onTap: _showHelpDialog,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6EDC68),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: CircleAvatar(
+                                radius: 22,
+                                backgroundColor: const Color(0xFFC7EFA3),
+                                child: Text(
+                                  '?',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF4A8C40),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Bantuan',
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                shadows: const [
+                                  Shadow(
+                                    color: Colors.black45,
+                                    blurRadius: 4,
+                                    offset: Offset(1, 1),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                      
+                      // Tombol Profil & Logout
                       PopupMenuButton<String>(
                         onSelected: (value) {
                           if (value == 'logout') {
@@ -283,18 +398,16 @@ class _ProfilPageState extends State<ProfilPage> {
                           child: GridView.builder(
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4, // Diubah menjadi 4 agar teks nama terlihat jelas
+                              crossAxisCount: 4,
                               mainAxisSpacing: 10,
                               crossAxisSpacing: 10,
-                              childAspectRatio: 0.85, // Menyesuaikan tinggi untuk teks di bawah
+                              childAspectRatio: 0.85,
                             ),
                             itemCount: allLetters.length,
                             itemBuilder: (context, index) {
                               String char = allLetters[index];
                               String name = _getLetterName(char);
                               bool learned = isLetterLearned(char);
-                              
-                              // Khusus untuk Ha' urutan ke-6 (huruf ح) diberi underline
                               bool isSpecialHa = (char == 'ح');
 
                               return Container(
@@ -389,16 +502,29 @@ class _ProfilPageState extends State<ProfilPage> {
                                             style: TextStyle(fontSize: 12)))
                                     : Scrollbar(
                                         child: ListView.builder(
-                                          padding:
-                                              const EdgeInsets.only(right: 8),
+                                          padding: const EdgeInsets.only(right: 8),
                                           itemCount: progressList.length,
                                           itemBuilder: (context, idx) {
                                             final item = progressList[idx];
+                                            String dbHuruf = item['huruf'].toString();
+                                            
+                                            // Mencari nama tampilan berdasarkan huruf di DB
+                                            String displayName = dbHuruf;
+                                            bool isSpecialHaFromDb = false;
+
+                                            // Logika pencocokan nama
+                                            for(var char in allLetters) {
+                                              if(_normalize(_getLetterName(char)) == _normalize(dbHuruf)) {
+                                                displayName = _getLetterName(char);
+                                                if(char == 'ح') isSpecialHaFromDb = true;
+                                                break;
+                                              }
+                                            }
+
                                             return Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 4,
-                                                      horizontal: 8),
+                                              padding: const EdgeInsets.symmetric(
+                                                  vertical: 4,
+                                                  horizontal: 8),
                                               margin: const EdgeInsets.only(
                                                   bottom: 4),
                                               decoration: BoxDecoration(
@@ -412,9 +538,10 @@ class _ProfilPageState extends State<ProfilPage> {
                                                         .spaceBetween,
                                                 children: [
                                                   Text(
-                                                      "${item['huruf'].toString().toUpperCase()}:",
-                                                      style: const TextStyle(
+                                                      "$displayName:",
+                                                      style: TextStyle(
                                                           fontSize: 12,
+                                                          decoration: isSpecialHaFromDb ? TextDecoration.underline : TextDecoration.none,
                                                           fontWeight:
                                                               FontWeight.bold)),
                                                   Text(
