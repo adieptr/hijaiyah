@@ -111,9 +111,15 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
 
   bool get isLowAccuracy => (widget.confidence ?? 0) < 0.7;
 
+  // Mendapatkan nilai persentase untuk ditampilkan
+  String get accuracyText {
+    if (widget.confidence == null) return "0%";
+    return "${(widget.confidence! * 100).toStringAsFixed(0)}%";
+  }
+
   String getResponseText() {
     if (isLowAccuracy) {
-      return "Tulisanmu masih belum mirip apakah kamu berniat menulis huruf ini?";
+      return "Tulisanmu masih belum mirip, apakah kamu berniat menulis huruf ini?";
     } else if (_isMastered) {
       return "Luar Biasa! Kamu sudah bisa menulis huruf ini.\nSiap lanjut ke tantangan berikutnya?";
     } else {
@@ -250,8 +256,26 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                                 : const Color(0xFF4A8C40),
                           ),
                         ),
+                        
+                        // MENAMBAHKAN TAMPILAN PERSENTASE AKURASI
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isLowAccuracy ? Colors.red.shade100 : const Color(0xFFE8F5E9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            "Akurasi: $accuracyText",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: isLowAccuracy ? Colors.red.shade900 : const Color(0xFF2E7D32),
+                            ),
+                          ),
+                        ),
 
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
 
                         if (isLowAccuracy && _showLetterPicker)
                           _buildLetterSelectionGrid(),
