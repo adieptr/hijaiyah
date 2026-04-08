@@ -260,31 +260,31 @@ class _HalamanTracingState extends State<HalamanTracing> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildHelpItem(
-                              '🎯 Tujuan Utama',
+                              'Tujuan Utama',
                               'Tebalkan huruf hijaiyah yang muncul samar di layar sesuai dengan urutan dan bentuknya.',
                             ),
                             const SizedBox(height: 12),
                             _buildHelpItem(
-                              '🖌️ Cara Menebalkan',
+                              'Cara Menebalkan',
                               '• Gunakan jari untuk mengikuti pola huruf.\n'
                                   '• Usahakan coretan tetap berada di dalam area huruf.\n'
                                   '• Ketuk sekali untuk membuat titik (pada mode Pena Normal).',
                             ),
                             const SizedBox(height: 12),
                             _buildHelpItem(
-                              '🎨 Gaya Pena',
+                              'Gaya Pena',
                               '• Mode Normal: ukuran default 15.\n'
                                   '• Mode Kaligrafi: ukuran default 25 (pena miring).\n'
                                   '• Tekan tombol "Gaya Pena" untuk berganti bentuk.',
                             ),
                             const SizedBox(height: 12),
                             _buildHelpItem(
-                              '✏️ Mode Tulis & Hapus',
+                              'Mode Tulis & Hapus',
                               'Gunakan satu tombol toggle untuk berganti antara menulis (biru) dan menghapus (oranye).',
                             ),
                             const SizedBox(height: 12),
                             _buildHelpItem(
-                              '📊 Penilaian',
+                              'Penilaian',
                               'Skor dihitung otomatis berdasarkan seberapa akurat coretan Anda menutupi pola huruf yang disediakan.',
                             ),
                           ],

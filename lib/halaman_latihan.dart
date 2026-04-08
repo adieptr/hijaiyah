@@ -294,7 +294,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildHelpItem(
-                          '🖌️ Cara Menggambar',
+                          'Cara Menggambar',
                           '• Gunakan jari untuk menggambar pada area putih.\n'
                               '• Geser jari untuk membuat garis.\n'
                               '• Ketuk sekali untuk membuat titik.\n'
@@ -302,14 +302,14 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                         ),
                         const SizedBox(height: 12),
                         _buildHelpItem(
-                          '✏️ Mode Pensil & Penghapus',
+                          'Mode Pensil & Penghapus',
                           '• Ikon pensil: untuk menulis.\n'
                               '• Ikon penghapus: untuk menghapus.\n'
                               '• Tekan tombol untuk mengganti mode.',
                         ),
                         const SizedBox(height: 12),
                         _buildHelpItem(
-                          '🎨 Gaya Pena',
+                          'Gaya Pena',
                           '• Mode Normal: garis biasa.\n'
                               '• Mode Kaligrafi: garis tebal miring seperti pena Arab.\n'
                               '• Tombol akan mengubah gaya tulisan.\n'
@@ -317,37 +317,37 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                         ),
                         const SizedBox(height: 12),
                         _buildHelpItem(
-                          '📏 Ketebalan Garis',
+                          'Ketebalan Garis',
                           '• Gunakan slider untuk mengatur tebal tipis garis.\n'
                               '• Cocokkan ketebalan dengan bentuk huruf.',
                         ),
                         const SizedBox(height: 12),
                         _buildHelpItem(
-                          '↩️ Undo & Redo',
+                          'Undo & Redo',
                           '• Undo: membatalkan goresan terakhir.\n'
                               '• Redo: mengembalikan goresan yang dibatalkan.',
                         ),
                         const SizedBox(height: 12),
                         _buildHelpItem(
-                          '🗑️ Bersihkan',
+                          'Bersihkan',
                           '• Menghapus semua gambar di canvas.\n'
                               '• Gunakan jika ingin mengulang dari awal.',
                         ),
                         const SizedBox(height: 12),
                         _buildHelpItem(
-                          '🤖 Cek Tulisan',
+                          'Cek Tulisan',
                           '• Tekan tombol "Cek Tulisan" untuk mengecek hasil.\n'
                               '• Sistem akan mengenali huruf hijaiyah.\n'
                               '• Hasil menampilkan huruf dan tingkat akurasi.',
                         ),
                         const SizedBox(height: 12),
                         _buildHelpItem(
-                          '📋 Menu',
+                          'Menu',
                           '• Kembali ke halaman utama aplikasi.',
                         ),
                         const SizedBox(height: 12),
                         _buildHelpItem(
-                          '💡 Tips',
+                          'Tips',
                           '• Tulis huruf dengan jelas.\n'
                               '• Gunakan gaya kaligrafi untuk hasil lebih bagus.\n'
                               '• Latihan berulang agar semakin akurat.',
