@@ -29,35 +29,100 @@ class HalamanHasilKlasifikasi extends StatefulWidget {
 class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isMastered = false;
-  bool _showLetterPicker = false; 
+  bool _showLetterPicker = false;
   String? _nextRecommendedLetter;
 
   // Pemetaan nama sesuai permintaan
   final Map<String, String> _hijaiyahDisplayMap = {
-    'alif': 'Alif', 'ba': "Ba'", 'ta': "Ta'", 'tsa': "Tsa'", 'jim': 'Jim',
-    'kha': "Ha'", 'kho': "Kho'", 'dal': 'Dal', 'dzal': 'Dzal', 'ro': "Ro'",
-    'za': 'Zaa', 'sin': 'Sin', 'syin': 'Syin', 'shod': 'Shod', 'dhod': 'Dhod',
-    'tho': "Tho'", 'dzo': "Zho'", 'ain': "'Ain", 'ghain': 'Ghain', 'fa': "Fa'",
-    'qof': 'Qof', 'kaf': 'Kaf', 'lam': 'Lam', 'mim': 'Mim', 'nun': 'Nun',
-    'wawu': 'Wawu', 'ha': "Ha'", 'ya': 'Ya',
+    'alif': 'Alif',
+    'ba': "Ba'",
+    'ta': "Ta'",
+    'tsa': "Tsa'",
+    'jim': 'Jim',
+    'kha': "Ha'",
+    'kho': "Kho'",
+    'dal': 'Dal',
+    'dzal': 'Dzal',
+    'ro': "Ro'",
+    'za': 'Zaa',
+    'sin': 'Sin',
+    'syin': 'Syin',
+    'shod': 'Shod',
+    'dhod': 'Dhod',
+    'tho': "Tho'",
+    'dzo': "Zho'",
+    'ain': "'Ain",
+    'ghain': 'Ghain',
+    'fa': "Ba'",
+    'qof': 'Qof',
+    'kaf': 'Kaf',
+    'lam': 'Lam',
+    'mim': 'Mim',
+    'nun': 'Nun',
+    'wawu': 'Wawu',
+    'ha': "Ha'",
+    'ya': 'Ya',
   };
 
   final Map<String, String> _visualSimilarityMap = {
-    'alif': 'ba', 'ba': 'ta', 'ta': 'tsa', 'tsa': 'jim', 'jim': 'kha',
-    'kha': 'kho', 'kho': 'dal', 'dal': 'dzal', 'dzal': 'ro', 'ro': 'za',
-    'za': 'sin', 'sin': 'syin', 'syin': 'shod', 'shod': 'dhod', 'dhod': 'tho',
-    'tho': 'dzo', 'dzo': 'ain', 'ain': 'ghain', 'ghain': 'fa', 'fa': 'qof',
-    'qof': 'kaf', 'kaf': 'lam', 'lam': 'mim', 'mim': 'nun', 'nun': 'wawu',
-    'wawu': 'ha', 'ha': 'ya',
+    'alif': 'ba',
+    'ba': 'ta',
+    'ta': 'tsa',
+    'tsa': 'jim',
+    'jim': 'kha',
+    'kha': 'kho',
+    'kho': 'dal',
+    'dal': 'dzal',
+    'dzal': 'ro',
+    'ro': 'za',
+    'za': 'sin',
+    'sin': 'syin',
+    'syin': 'shod',
+    'shod': 'dhod',
+    'dhod': 'tho',
+    'tho': 'dzo',
+    'dzo': 'ain',
+    'ain': 'ghain',
+    'ghain': 'fa',
+    'fa': 'qof',
+    'qof': 'kaf',
+    'kaf': 'lam',
+    'lam': 'mim',
+    'mim': 'nun',
+    'nun': 'wawu',
+    'wawu': 'ha',
+    'ha': 'ya',
   };
 
   final Map<String, String> _nameToLetterMap = {
-    'alif': 'ا', 'ba': 'ب', 'ta': 'ت', 'tsa': 'ث', 'jim': 'ج',
-    'kha': 'ح', 'kho': 'خ', 'dal': 'د', 'dzal': 'ذ', 'ro': 'ر',
-    'za': 'ز', 'sin': 'س', 'syin': 'ش', 'shod': 'ص', 'dhod': 'ض',
-    'tho': 'ط', 'dzo': 'ظ', 'ain': 'ع', 'ghain': 'غ', 'fa': 'ف',
-    'qof': 'ق', 'kaf': 'ك', 'lam': 'ل', 'mim': 'م', 'nun': 'ن',
-    'wawu': 'و', 'ha': 'ه', 'ya': 'ي',
+    'alif': 'ا',
+    'ba': 'ب',
+    'ta': 'ت',
+    'tsa': 'ث',
+    'jim': 'ج',
+    'kha': 'ح',
+    'kho': 'خ',
+    'dal': 'د',
+    'dzal': 'ذ',
+    'ro': 'ر',
+    'za': 'ز',
+    'sin': 'س',
+    'syin': 'ش',
+    'shod': 'ص',
+    'dhod': 'ض',
+    'tho': 'ط',
+    'dzo': 'ظ',
+    'ain': 'ع',
+    'ghain': 'غ',
+    'fa': 'ف',
+    'qof': 'ق',
+    'kaf': 'ك',
+    'lam': 'ل',
+    'mim': 'م',
+    'nun': 'ن',
+    'wawu': 'و',
+    'ha': 'ه',
+    'ya': 'ي',
   };
 
   @override
@@ -140,63 +205,75 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
           padding: EdgeInsets.symmetric(vertical: 12.0),
           child: Text(
             "PILIH HURUF YANG KAMU MAKSUD:",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
           ),
         ),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          alignment: WrapAlignment.center,
-          children: _nameToLetterMap.entries.map((entry) {
-            String name = _hijaiyahDisplayMap[entry.key] ?? entry.key;
-            bool isUnderlineHa = (entry.key == 'kha');
+        // Menggunakan Directionality RTL agar urutan dimulai dari kanan ke kiri
+        Directionality(
+          textDirection: TextDirection.rtl,
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: _nameToLetterMap.entries.map((entry) {
+              String name = _hijaiyahDisplayMap[entry.key] ?? entry.key;
+              bool isUnderlineHa = (entry.key == 'kha');
 
-            return InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HalamanTracing(
-                      hijaiyahLetter: entry.value,
-                      hijaiyahName: entry.key,
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HalamanTracing(
+                        hijaiyahLetter: entry.value,
+                        hijaiyahName: entry.key,
+                      ),
                     ),
-                  ),
-                );
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 45,
-                    height: 45,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF6EDC68), width: 1.5),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))
-                      ],
+                  );
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 45,
+                      height: 45,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                            color: const Color(0xFF6EDC68), width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2))
+                        ],
+                      ),
+                      child: Text(
+                        entry.value,
+                        style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
                     ),
-                    child: Text(
-                      entry.value,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    name,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      decoration: isUnderlineHa ? TextDecoration.underline : TextDecoration.none,
-                      color: Colors.grey.shade700,
-                    ),
-                  )
-                ],
-              ),
-            );
-          }).toList(),
+                    const SizedBox(height: 2),
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        decoration: isUnderlineHa
+                            ? TextDecoration.underline
+                            : TextDecoration.none,
+                        color: Colors.grey.shade700,
+                      ),
+                    )
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
         ),
       ],
     );
@@ -205,7 +282,9 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    String displayName = _hijaiyahDisplayMap[widget.hijaiyahName.toLowerCase()] ?? widget.hijaiyahName;
+    String displayName =
+        _hijaiyahDisplayMap[widget.hijaiyahName.toLowerCase()] ??
+            widget.hijaiyahName;
     bool isSpecialHa = (widget.hijaiyahName.toLowerCase() == 'kha');
 
     return Scaffold(
@@ -244,7 +323,6 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                       children: [
                         if (_isMastered) const BadgeMastered(),
                         const SizedBox(height: 10),
-
                         Text(
                           getResponseText(),
                           textAlign: TextAlign.center,
@@ -256,13 +334,14 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                                 : const Color(0xFF4A8C40),
                           ),
                         ),
-                        
-                        // MENAMBAHKAN TAMPILAN PERSENTASE AKURASI
                         const SizedBox(height: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
-                            color: isLowAccuracy ? Colors.red.shade100 : const Color(0xFFE8F5E9),
+                            color: isLowAccuracy
+                                ? Colors.red.shade100
+                                : const Color(0xFFE8F5E9),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -270,34 +349,38 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
-                              color: isLowAccuracy ? Colors.red.shade900 : const Color(0xFF2E7D32),
+                              color: isLowAccuracy
+                                  ? Colors.red.shade900
+                                  : const Color(0xFF2E7D32),
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 20),
-
                         if (isLowAccuracy && _showLetterPicker)
                           _buildLetterSelectionGrid(),
-
                         if (!_showLetterPicker) ...[
-                          // Bingkai Utama
                           Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                                color: isLowAccuracy ? Colors.red.shade50 : const Color(0xFFF1F8E9),
+                                color: isLowAccuracy
+                                    ? Colors.red.shade50
+                                    : const Color(0xFFF1F8E9),
                                 shape: BoxShape.rectangle,
                                 borderRadius: BorderRadius.circular(25),
                                 border: Border.all(
-                                    color: isLowAccuracy ? Colors.red.shade200 : const Color(0xFFC7EFA3),
+                                    color: isLowAccuracy
+                                        ? Colors.red.shade200
+                                        : const Color(0xFFC7EFA3),
                                     width: 3)),
                             child: isLowAccuracy
                                 ? Image.asset(
                                     'assets/images/hijaiyah/${widget.hijaiyahName.toLowerCase()}.png',
                                     height: 120,
                                     fit: BoxFit.contain,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        const Icon(Icons.image_not_supported, size: 60),
+                                    errorBuilder: (context, error,
+                                            stackTrace) =>
+                                        const Icon(Icons.image_not_supported,
+                                            size: 60),
                                   )
                                 : (widget.userDrawing != null
                                     ? Image.memory(
@@ -305,7 +388,8 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                                         height: 120,
                                         fit: BoxFit.contain,
                                       )
-                                    : const Icon(Icons.edit, size: 60, color: Colors.grey)),
+                                    : const Icon(Icons.edit,
+                                        size: 60, color: Colors.grey)),
                           ),
                           const SizedBox(height: 16),
                           Text(
@@ -313,26 +397,32 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                             style: GoogleFonts.poppins(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              decoration: isSpecialHa ? TextDecoration.underline : TextDecoration.none,
-                              color: isLowAccuracy ? Colors.red.shade700 : const Color(0xFF4A8C40),
+                              decoration: isSpecialHa
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
+                              color: isLowAccuracy
+                                  ? Colors.red.shade700
+                                  : const Color(0xFF4A8C40),
                             ),
                           ),
-
                           if (isLowAccuracy)
                             Padding(
-                              padding: const EdgeInsets.only(top: 24, bottom: 8),
+                              padding:
+                                  const EdgeInsets.only(top: 24, bottom: 8),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   _buildDecisionButton(
                                     label: "YA",
-                                    color: const Color.fromARGB(255, 37, 174, 30),
+                                    color:
+                                        const Color.fromARGB(255, 37, 174, 30),
                                     onTap: () {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => HalamanTracing(
-                                            hijaiyahLetter: widget.hijaiyahLetter,
+                                            hijaiyahLetter:
+                                                widget.hijaiyahLetter,
                                             hijaiyahName: widget.hijaiyahName,
                                           ),
                                         ),
@@ -342,7 +432,8 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                                   const SizedBox(width: 15),
                                   _buildDecisionButton(
                                     label: "TIDAK",
-                                    color: const Color.fromARGB(255, 206, 77, 77),
+                                    color:
+                                        const Color.fromARGB(255, 206, 77, 77),
                                     onTap: () {
                                       setState(() {
                                         _showLetterPicker = true;
@@ -357,14 +448,12 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  
                   if (!isLowAccuracy)
                     _buildCustomButton(
                       text: "DENGARKAN SUARA",
                       onPressed: playSound,
                       icon: Icons.volume_up,
                     ),
-
                   if (_isMastered && _nextRecommendedLetter != null)
                     _buildCustomButton(
                       text:
@@ -388,17 +477,15 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                       },
                       isUnderlined: _nextRecommendedLetter == 'kha',
                     ),
-
                   _buildCustomButton(
                     text: "LATIHAN LAGI",
                     icon: Icons.refresh,
                     onPressed: () => Navigator.pop(context, true),
                   ),
-                  
                   const SizedBox(height: 8),
                   GestureDetector(
-                    onTap: () =>
-                        Navigator.of(context).popUntil((route) => route.isFirst),
+                    onTap: () => Navigator.of(context)
+                        .popUntil((route) => route.isFirst),
                     child: const Text("Kembali ke Menu Utama",
                         style: TextStyle(
                           color: Colors.white,

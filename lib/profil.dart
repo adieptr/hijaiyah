@@ -16,9 +16,36 @@ class _ProfilPageState extends State<ProfilPage> {
   List<Map<String, dynamic>> progressList = [];
   bool isLoading = true;
 
+  // Urutan huruf dari Alif sampai Ya
   final List<String> allLetters = [
-    'ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص',
-    'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 'ل', 'م', 'ن', 'و', 'ه', 'ي'
+    'ا',
+    'ب',
+    'ت',
+    'ث',
+    'ج',
+    'ح',
+    'خ',
+    'د',
+    'ذ',
+    'ر',
+    'ز',
+    'س',
+    'ش',
+    'ص',
+    'ض',
+    'ط',
+    'ظ',
+    'ع',
+    'غ',
+    'ف',
+    'ق',
+    'ك',
+    'ل',
+    'م',
+    'ن',
+    'و',
+    'ه',
+    'ي'
   ];
 
   @override
@@ -170,9 +197,8 @@ class _ProfilPageState extends State<ProfilPage> {
 
   bool isLetterLearned(String letter) {
     String currentName = _normalize(_getLetterName(letter));
-    return progressList.any((element) => 
-      _normalize(element['huruf'].toString()) == currentName
-    );
+    return progressList.any(
+        (element) => _normalize(element['huruf'].toString()) == currentName);
   }
 
   String _getLetterName(String char) {
@@ -182,7 +208,7 @@ class _ProfilPageState extends State<ProfilPage> {
       'ت': "Ta'",
       'ث': "Tsa'",
       'ج': 'Jim',
-      'ح': "Ha'", // Underline in UI
+      'ح': "Ha'",
       'خ': "Kho'",
       'د': 'Dal',
       'ذ': 'Dzal',
@@ -233,11 +259,11 @@ class _ProfilPageState extends State<ProfilPage> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Tombol Bantuan (Ganti teks judul lama)
                       GestureDetector(
                         onTap: _showHelpDialog,
                         child: Column(
@@ -288,8 +314,6 @@ class _ProfilPageState extends State<ProfilPage> {
                           ],
                         ),
                       ),
-                      
-                      // Tombol Profil & Logout
                       PopupMenuButton<String>(
                         onSelected: (value) {
                           if (value == 'logout') {
@@ -395,63 +419,70 @@ class _ProfilPageState extends State<ProfilPage> {
                         const SizedBox(height: 15),
                         Expanded(
                           flex: 4,
-                          child: GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4,
-                              mainAxisSpacing: 10,
-                              crossAxisSpacing: 10,
-                              childAspectRatio: 0.85,
-                            ),
-                            itemCount: allLetters.length,
-                            itemBuilder: (context, index) {
-                              String char = allLetters[index];
-                              String name = _getLetterName(char);
-                              bool learned = isLetterLearned(char);
-                              bool isSpecialHa = (char == 'ح');
+                          // Menggunakan Directionality RTL agar urutan grid dimulai dari kanan ke kiri
+                          child: Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4,
+                                mainAxisSpacing: 10,
+                                crossAxisSpacing: 10,
+                                childAspectRatio: 0.85,
+                              ),
+                              itemCount: allLetters.length,
+                              itemBuilder: (context, index) {
+                                String char = allLetters[index];
+                                String name = _getLetterName(char);
+                                bool learned = isLetterLearned(char);
+                                bool isSpecialHa = (char == 'ح');
 
-                              return Container(
-                                decoration: BoxDecoration(
-                                  color: learned
-                                      ? const Color(0xFFC7EFA3)
-                                      : Colors.grey.shade200,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                      color: learned
-                                          ? const Color(0xFF6EDC68)
-                                          : Colors.grey.shade400,
-                                      width: 1.5),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      char,
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: learned
+                                        ? const Color(0xFFC7EFA3)
+                                        : Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
                                         color: learned
-                                            ? const Color(0xFF4A8C40)
-                                            : Colors.grey,
+                                            ? const Color(0xFF6EDC68)
+                                            : Colors.grey.shade400,
+                                        width: 1.5),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        char,
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: learned
+                                              ? const Color(0xFF4A8C40)
+                                              : Colors.grey,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      name,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        decoration: isSpecialHa ? TextDecoration.underline : TextDecoration.none,
-                                        color: learned
-                                            ? const Color(0xFF4A8C40).withOpacity(0.8)
-                                            : Colors.grey,
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        name,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          decoration: isSpecialHa
+                                              ? TextDecoration.underline
+                                              : TextDecoration.none,
+                                          color: learned
+                                              ? const Color(0xFF4A8C40)
+                                                  .withOpacity(0.8)
+                                              : Colors.grey,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
                         const Divider(thickness: 1.5),
@@ -502,29 +533,34 @@ class _ProfilPageState extends State<ProfilPage> {
                                             style: TextStyle(fontSize: 12)))
                                     : Scrollbar(
                                         child: ListView.builder(
-                                          padding: const EdgeInsets.only(right: 8),
+                                          padding:
+                                              const EdgeInsets.only(right: 8),
                                           itemCount: progressList.length,
                                           itemBuilder: (context, idx) {
                                             final item = progressList[idx];
-                                            String dbHuruf = item['huruf'].toString();
-                                            
-                                            // Mencari nama tampilan berdasarkan huruf di DB
+                                            String dbHuruf =
+                                                item['huruf'].toString();
+
                                             String displayName = dbHuruf;
                                             bool isSpecialHaFromDb = false;
 
-                                            // Logika pencocokan nama
-                                            for(var char in allLetters) {
-                                              if(_normalize(_getLetterName(char)) == _normalize(dbHuruf)) {
-                                                displayName = _getLetterName(char);
-                                                if(char == 'ح') isSpecialHaFromDb = true;
+                                            for (var char in allLetters) {
+                                              if (_normalize(
+                                                      _getLetterName(char)) ==
+                                                  _normalize(dbHuruf)) {
+                                                displayName =
+                                                    _getLetterName(char);
+                                                if (char == 'ح')
+                                                  isSpecialHaFromDb = true;
                                                 break;
                                               }
                                             }
 
                                             return Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                  vertical: 4,
-                                                  horizontal: 8),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 4,
+                                                      horizontal: 8),
                                               margin: const EdgeInsets.only(
                                                   bottom: 4),
                                               decoration: BoxDecoration(
@@ -537,11 +573,15 @@ class _ProfilPageState extends State<ProfilPage> {
                                                     MainAxisAlignment
                                                         .spaceBetween,
                                                 children: [
-                                                  Text(
-                                                      "$displayName:",
+                                                  Text("$displayName:",
                                                       style: TextStyle(
                                                           fontSize: 12,
-                                                          decoration: isSpecialHaFromDb ? TextDecoration.underline : TextDecoration.none,
+                                                          decoration:
+                                                              isSpecialHaFromDb
+                                                                  ? TextDecoration
+                                                                      .underline
+                                                                  : TextDecoration
+                                                                      .none,
                                                           fontWeight:
                                                               FontWeight.bold)),
                                                   Text(
