@@ -16,7 +16,6 @@ class _ProfilPageState extends State<ProfilPage> {
   List<Map<String, dynamic>> progressList = [];
   bool isLoading = true;
 
-  // Urutan huruf dari Alif sampai Ya
   final List<String> allLetters = [
     'ا',
     'ب',
@@ -80,7 +79,6 @@ class _ProfilPageState extends State<ProfilPage> {
     return text.toLowerCase().replaceAll("'", "").trim();
   }
 
-  // Dialog Bantuan untuk Halaman Profil
   void _showHelpDialog() {
     showDialog(
       context: context,
@@ -419,7 +417,6 @@ class _ProfilPageState extends State<ProfilPage> {
                         const SizedBox(height: 15),
                         Expanded(
                           flex: 4,
-                          // Menggunakan Directionality RTL agar urutan grid dimulai dari kanan ke kiri
                           child: Directionality(
                             textDirection: TextDirection.rtl,
                             child: GridView.builder(

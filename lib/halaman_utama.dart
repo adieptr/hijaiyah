@@ -142,20 +142,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return Scaffold(
       body: Stack(
         children: [
-          // Background Image
           Positioned.fill(
             child: Image.asset(
               'assets/images/bg.png',
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(color: Colors.green.shade800),
+              errorBuilder: (context, error, stackTrace) =>
+                  Container(color: Colors.green.shade800),
             ),
           ),
-          // Overlay
           Positioned.fill(
             child: Container(color: Colors.black.withOpacity(0.15)),
           ),
-
-          // Tombol Bantuan (Pojok Kiri Atas)
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             left: 16,
@@ -210,8 +207,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ),
           ),
-
-          // Tombol Profil (Pojok Kanan Atas)
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             right: 16,
@@ -267,8 +262,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ),
           ),
-
-          // Konten Utama
           Center(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -314,8 +307,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ),
                   ),
                   SizedBox(height: screenHeight * 0.05),
-                  
-                  // Tombol Belajar
                   ElevatedButton(
                     onPressed: () => _navigateTo(const BelajarScreen()),
                     style: ElevatedButton.styleFrom(
@@ -341,8 +332,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ),
                   ),
                   SizedBox(height: screenHeight * 0.03),
-                  
-                  // Tombol Latihan
                   ElevatedButton(
                     onPressed: () => _navigateTo(const HalamanLatihan()),
                     style: ElevatedButton.styleFrom(

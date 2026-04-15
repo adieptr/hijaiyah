@@ -10,7 +10,6 @@ import '../utils/session.dart';
 import 'dart:typed_data';
 import 'dart:math' as math;
 
-// Model diperbarui: Menambahkan isCalligraphy untuk menentukan gaya lukisan per stroke
 class Stroke {
   final List<Offset> points;
   final Color color;
@@ -45,8 +44,8 @@ class _DrawingPainter extends CustomPainter {
           ..strokeWidth = stroke.width;
 
         if (stroke.points.length == 1) {
-          // LOGIKA TITIK UNTUK PENGHAPUS
-          canvas.drawCircle(stroke.points.first, stroke.width / 2, paint..style = PaintingStyle.fill);
+          canvas.drawCircle(stroke.points.first, stroke.width / 2,
+              paint..style = PaintingStyle.fill);
         } else {
           final path = Path();
           path.moveTo(stroke.points.first.dx, stroke.points.first.dy);
@@ -56,9 +55,7 @@ class _DrawingPainter extends CustomPainter {
           canvas.drawPath(path, paint);
         }
       } else {
-        // Mode Pensil: Cek apakah gaya kaligrafi atau normal
         if (!stroke.isCalligraphy) {
-          // GAYA PENA NORMAL
           final normalPaint = Paint()
             ..color = stroke.color
             ..strokeCap = StrokeCap.round
@@ -68,8 +65,8 @@ class _DrawingPainter extends CustomPainter {
             ..isAntiAlias = true;
 
           if (stroke.points.length == 1) {
-            // LOGIKA TITIK: Jika hanya satu titik, gambar lingkaran (dot)
-            canvas.drawCircle(stroke.points.first, stroke.width / 2, normalPaint..style = PaintingStyle.fill);
+            canvas.drawCircle(stroke.points.first, stroke.width / 2,
+                normalPaint..style = PaintingStyle.fill);
           } else {
             final path = Path();
             path.moveTo(stroke.points.first.dx, stroke.points.first.dy);
@@ -79,7 +76,6 @@ class _DrawingPainter extends CustomPainter {
             canvas.drawPath(path, normalPaint);
           }
         } else {
-          // GAYA PENA KALIGRAFI (Ribbon Effect)
           final paint = Paint()
             ..color = stroke.color
             ..style = PaintingStyle.fill
@@ -339,7 +335,6 @@ class _HalamanTracingState extends State<HalamanTracing> {
     );
   }
 
-
   Future<void> _calculateScore() async {
     if (_strokes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -518,12 +513,11 @@ class _HalamanTracingState extends State<HalamanTracing> {
             _buildLargeButton(
                 text: "Selesai",
                 onTap: () {
-                  Navigator.pop(context); // Tutup dialog
-                  // Pindah ke Halaman Latihan dan hapus tumpukan navigasi sebelumnya 
-                  // agar kembali ke menu pilihan huruf/latihan
+                  Navigator.pop(context);
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const HalamanLatihan()),
+                    MaterialPageRoute(
+                        builder: (context) => const HalamanLatihan()),
                   );
                 },
                 widthMultiplier: 0.65),
@@ -578,33 +572,45 @@ class _HalamanTracingState extends State<HalamanTracing> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 _buildRoundButton(
-                                    icon: Icons.undo, onTap: _undo, tooltip: "Undo"),
+                                    icon: Icons.undo,
+                                    onTap: _undo,
+                                    tooltip: "Undo"),
                                 const SizedBox(width: 8),
                                 _buildRoundButton(
-                                    icon: Icons.redo, onTap: _redo, tooltip: "Redo"),
+                                    icon: Icons.redo,
+                                    onTap: _redo,
+                                    tooltip: "Redo"),
                                 const SizedBox(width: 24),
                                 _buildRoundButton(
-                                    icon: Icons.delete, onTap: _clearCanvas, tooltip: "Bersihkan"),
+                                    icon: Icons.delete,
+                                    onTap: _clearCanvas,
+                                    tooltip: "Bersihkan"),
                                 const SizedBox(width: 8),
-                                
-                                // TOMBOL TOGGLE PENSIL / PENGHAPUS
                                 _buildRoundButton(
-                                  icon: _isEraser ? Icons.cleaning_services : Icons.edit,
-                                  onTap: () => setState(() => _isEraser = !_isEraser),
+                                  icon: _isEraser
+                                      ? Icons.cleaning_services
+                                      : Icons.edit,
+                                  onTap: () =>
+                                      setState(() => _isEraser = !_isEraser),
                                   isActive: true,
-                                  activeColor: _isEraser ? Colors.orangeAccent : Colors.blueAccent,
-                                  tooltip: _isEraser ? "Mode Hapus" : "Mode Tulis",
+                                  activeColor: _isEraser
+                                      ? Colors.orangeAccent
+                                      : Colors.blueAccent,
+                                  tooltip:
+                                      _isEraser ? "Mode Hapus" : "Mode Tulis",
                                 ),
                                 const SizedBox(width: 8),
-
-                                // TOMBOL SWITCH GAYA PENA (NORMAL / KALIGRAFI)
                                 _buildRoundButton(
-                                  icon: _isCalligraphyStyle ? Icons.history_edu : Icons.brush,
+                                  icon: _isCalligraphyStyle
+                                      ? Icons.history_edu
+                                      : Icons.brush,
                                   onTap: () {
                                     setState(() {
-                                      _isCalligraphyStyle = !_isCalligraphyStyle;
-                                      _isEraser = false; // Kembali ke pensil saat ganti gaya
-                                      _strokeWidth = _isCalligraphyStyle ? 25.0 : 19.0;
+                                      _isCalligraphyStyle =
+                                          !_isCalligraphyStyle;
+                                      _isEraser = false;
+                                      _strokeWidth =
+                                          _isCalligraphyStyle ? 25.0 : 19.0;
                                     });
                                   },
                                   isActive: true,
@@ -650,7 +656,8 @@ class _HalamanTracingState extends State<HalamanTracing> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.black, width: 2),
+                                border:
+                                    Border.all(color: Colors.black, width: 2),
                                 boxShadow: [
                                   BoxShadow(
                                       color: Colors.black.withOpacity(0.2),
@@ -690,7 +697,8 @@ class _HalamanTracingState extends State<HalamanTracing> {
                                           onPanUpdate: _onPanUpdate,
                                           onPanEnd: _onPanEnd,
                                           child: CustomPaint(
-                                              painter: _DrawingPainter(_strokes),
+                                              painter:
+                                                  _DrawingPainter(_strokes),
                                               size: Size.infinite),
                                         ),
                                       ),
@@ -720,7 +728,6 @@ class _HalamanTracingState extends State<HalamanTracing> {
             ),
           ),
 
-          // TOMBOL BANTUAN (Pojok Kiri Atas)
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             left: 16,
@@ -762,7 +769,6 @@ class _HalamanTracingState extends State<HalamanTracing> {
             ),
           ),
 
-          // TOMBOL PROFIL (Pojok Kanan Atas)
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             right: 16,

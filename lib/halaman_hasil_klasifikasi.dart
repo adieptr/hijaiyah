@@ -9,7 +9,7 @@ import 'halaman_belajar2.dart';
 
 class HalamanHasilKlasifikasi extends StatefulWidget {
   final String hijaiyahLetter;
-  final String hijaiyahName; // Nama internal (alif, ba, dst)
+  final String hijaiyahName;
   final double? confidence;
   final Uint8List? userDrawing;
 
@@ -32,7 +32,6 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
   bool _showLetterPicker = false;
   String? _nextRecommendedLetter;
 
-  // Pemetaan nama sesuai permintaan
   final Map<String, String> _hijaiyahDisplayMap = {
     'alif': 'Alif',
     'ba': "Ba'",
@@ -176,7 +175,6 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
 
   bool get isLowAccuracy => (widget.confidence ?? 0) < 0.7;
 
-  // Mendapatkan nilai persentase untuk ditampilkan
   String get accuracyText {
     if (widget.confidence == null) return "0%";
     return "${(widget.confidence! * 100).toStringAsFixed(0)}%";
@@ -184,7 +182,7 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
 
   String getResponseText() {
     if (isLowAccuracy) {
-      return "Tulisanmu masih belum mirip, apakah kamu berniat menulis huruf ini?";
+      return "Tulisanmu masih kurang bagus, apakah kamu berniat menulis huruf ini?";
     } else if (_isMastered) {
       return "Luar Biasa! Kamu sudah bisa menulis huruf ini.\nSiap lanjut ke tantangan berikutnya?";
     } else {
@@ -209,7 +207,6 @@ class _HalamanHasilKlasifikasiState extends State<HalamanHasilKlasifikasi> {
                 fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey),
           ),
         ),
-        // Menggunakan Directionality RTL agar urutan dimulai dari kanan ke kiri
         Directionality(
           textDirection: TextDirection.rtl,
           child: Wrap(

@@ -66,8 +66,8 @@ class HijaiyahButton extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFF4A7C44),
                   // Logika Underline khusus untuk huruf Ha' (ح)
-                  decoration: hijaiyahLetter == 'ح' 
-                      ? TextDecoration.underline 
+                  decoration: hijaiyahLetter == 'ح'
+                      ? TextDecoration.underline
                       : TextDecoration.none,
                   decorationThickness: 2,
                 ),
@@ -92,7 +92,6 @@ class _BelajarScreenState extends State<BelajarScreen> {
   int currentPage = 0;
   String? fullname;
 
-  // Data Huruf dengan penamaan baru sesuai permintaan
   final List<List<Map<String, String>>> pages = [
     [
       {'letter': 'ا', 'text': 'Belajar Huruf Alif'},
@@ -162,51 +161,50 @@ class _BelajarScreenState extends State<BelajarScreen> {
 
   void _showHelpDialog() {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: Color(0xFF6EDC68), width: 2),
-          ),
-          backgroundColor: const Color(0xFFC7EFA3),
-          title: Text(
-            'Bantuan Belajar',
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFF4A8C40),
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: Color(0xFF6EDC68), width: 2),
             ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHelpItem(
-                'Pilih Huruf:',
-                'Tekan salah satu tombol huruf hijaiyah untuk mempelajari cara pelafalan dan penulisannya.',
+            backgroundColor: const Color(0xFFC7EFA3),
+            title: Text(
+              'Bantuan Belajar',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF4A8C40),
               ),
-              const SizedBox(height: 12),
-              _buildHelpItem(
-                'Navigasi:',
-                'Gunakan tombol panah di bawah atau usap layar ke kanan/kiri untuk melihat daftar huruf lainnya.',
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Mengerti',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF4A8C40),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHelpItem(
+                  'Pilih Huruf:',
+                  'Tekan salah satu tombol huruf hijaiyah untuk mempelajari cara pelafalan dan penulisannya.',
+                ),
+                const SizedBox(height: 12),
+                _buildHelpItem(
+                  'Navigasi:',
+                  'Gunakan tombol panah di bawah atau usap layar ke kanan/kiri untuk melihat daftar huruf lainnya.',
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Mengerti',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF4A8C40),
+                  ),
                 ),
               ),
-            ),
-          ],
-        );
-      }
-    );
+            ],
+          );
+        });
   }
 
   Widget _buildHelpItem(String title, String description) {
@@ -250,7 +248,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
           Positioned.fill(
             child: Container(color: Colors.black.withOpacity(0.1)),
           ),
-          
+
           // Konten Utama
           Column(
             children: [
@@ -427,7 +425,7 @@ class _BelajarScreenState extends State<BelajarScreen> {
                   context,
                   MaterialPageRoute(builder: (_) => const ProfilPage()),
                 );
-                loadUser(); 
+                loadUser();
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,

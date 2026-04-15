@@ -63,9 +63,7 @@ class _DrawingPainter extends CustomPainter {
         continue;
       }
 
-      // Mode Pensil: Cek apakah gaya kaligrafi atau normal
       if (!stroke.isCalligraphy) {
-        // GAYA PENA NORMAL
         final normalPaint = Paint()
           ..color = stroke.color
           ..strokeCap = StrokeCap.round
@@ -75,7 +73,6 @@ class _DrawingPainter extends CustomPainter {
           ..isAntiAlias = true;
 
         if (stroke.points.length == 1) {
-          // LOGIKA TITIK: Jika hanya satu titik, gambar lingkaran (dot)
           canvas.drawCircle(stroke.points.first, stroke.width / 2,
               normalPaint..style = PaintingStyle.fill);
         } else {
@@ -87,7 +84,6 @@ class _DrawingPainter extends CustomPainter {
           canvas.drawPath(path, normalPaint);
         }
       } else {
-        // GAYA PENA KALIGRAFI (Ribbon Effect)
         final calligraphyPaint = Paint()
           ..color = stroke.color
           ..style = PaintingStyle.fill
@@ -115,7 +111,6 @@ class _DrawingPainter extends CustomPainter {
           canvas.drawPath(path, calligraphyPaint);
         }
 
-        // Titik pada kaligrafi tetap menggunakan bentuk kotak miring (nib)
         if (stroke.points.length == 1) {
           final p = stroke.points.first;
           final path = Path()
@@ -147,8 +142,8 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
   String? fullname;
 
   DrawingMode _currentMode = DrawingMode.pencil;
-  bool _isCalligraphyStyle = true; // Toggle untuk gaya brush
-  double _strokeWidth = 20; // Default awal kaligrafi
+  bool _isCalligraphyStyle = true;
+  double _strokeWidth = 20;
   final Color _pencilColor = Colors.black;
   final Color _eraserColor = Colors.white;
 
@@ -258,130 +253,128 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
   }
 
   void _showHelpDialog() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Color(0xFF6EDC68), width: 2),
-        ),
-        backgroundColor: const Color(0xFFC7EFA3),
-        title: Text(
-          'Bantuan Latihan',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF4A8C40),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: Color(0xFF6EDC68), width: 2),
           ),
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.3,
+          backgroundColor: const Color(0xFFC7EFA3),
+          title: Text(
+            'Bantuan Latihan',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF4A8C40),
             ),
-            child: Column(
-              children: [
-                const Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 20,
-                  color: Colors.black45,
-                ),
-
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHelpItem(
-                          'Cara Menggambar',
-                          '• Gunakan jari untuk menggambar pada area putih.\n'
-                              '• Geser jari untuk membuat garis.\n'
-                              '• Ketuk sekali untuk membuat titik.\n'
-                              '• Pastikan gambar tetap di dalam kotak.',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildHelpItem(
-                          'Mode Pensil & Penghapus',
-                          '• Ikon pensil: untuk menulis.\n'
-                              '• Ikon penghapus: untuk menghapus.\n'
-                              '• Tekan tombol untuk mengganti mode.',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildHelpItem(
-                          'Gaya Pena',
-                          '• Mode Normal: garis biasa.\n'
-                              '• Mode Kaligrafi: garis tebal miring seperti pena Arab.\n'
-                              '• Tombol akan mengubah gaya tulisan.\n'
-                              '• Saat ganti gaya, otomatis kembali ke mode pensil.',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildHelpItem(
-                          'Ketebalan Garis',
-                          '• Gunakan slider untuk mengatur tebal tipis garis.\n'
-                              '• Cocokkan ketebalan dengan bentuk huruf.',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildHelpItem(
-                          'Undo & Redo',
-                          '• Undo: membatalkan goresan terakhir.\n'
-                              '• Redo: mengembalikan goresan yang dibatalkan.',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildHelpItem(
-                          'Bersihkan',
-                          '• Menghapus semua gambar di canvas.\n'
-                              '• Gunakan jika ingin mengulang dari awal.',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildHelpItem(
-                          'Cek Tulisan',
-                          '• Tekan tombol "Cek Tulisan" untuk mengecek hasil.\n'
-                              '• Sistem akan mengenali huruf hijaiyah.\n'
-                              '• Hasil menampilkan huruf dan tingkat akurasi.',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildHelpItem(
-                          'Menu',
-                          '• Kembali ke halaman utama aplikasi.',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildHelpItem(
-                          'Tips',
-                          '• Tulis huruf dengan jelas.\n'
-                              '• Gunakan gaya kaligrafi untuk hasil lebih bagus.\n'
-                              '• Latihan berulang agar semakin akurat.',
-                        ),
-                      ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.3,
+              ),
+              child: Column(
+                children: [
+                  const Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 20,
+                    color: Colors.black45,
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildHelpItem(
+                            'Cara Menggambar',
+                            '• Gunakan jari untuk menggambar pada area putih.\n'
+                                '• Geser jari untuk membuat garis.\n'
+                                '• Ketuk sekali untuk membuat titik.\n'
+                                '• Pastikan gambar tetap di dalam kotak.',
+                          ),
+                          const SizedBox(height: 12),
+                          _buildHelpItem(
+                            'Mode Pensil & Penghapus',
+                            '• Ikon pensil: untuk menulis.\n'
+                                '• Ikon penghapus: untuk menghapus.\n'
+                                '• Tekan tombol untuk mengganti mode.',
+                          ),
+                          const SizedBox(height: 12),
+                          _buildHelpItem(
+                            'Gaya Pena',
+                            '• Mode Normal: garis biasa.\n'
+                                '• Mode Kaligrafi: garis tebal miring seperti pena Arab.\n'
+                                '• Tombol akan mengubah gaya tulisan.\n'
+                                '• Saat ganti gaya, otomatis kembali ke mode pensil.',
+                          ),
+                          const SizedBox(height: 12),
+                          _buildHelpItem(
+                            'Ketebalan Garis',
+                            '• Gunakan slider untuk mengatur tebal tipis garis.\n'
+                                '• Cocokkan ketebalan dengan bentuk huruf.',
+                          ),
+                          const SizedBox(height: 12),
+                          _buildHelpItem(
+                            'Undo & Redo',
+                            '• Undo: membatalkan goresan terakhir.\n'
+                                '• Redo: mengembalikan goresan yang dibatalkan.',
+                          ),
+                          const SizedBox(height: 12),
+                          _buildHelpItem(
+                            'Bersihkan',
+                            '• Menghapus semua gambar di canvas.\n'
+                                '• Gunakan jika ingin mengulang dari awal.',
+                          ),
+                          const SizedBox(height: 12),
+                          _buildHelpItem(
+                            'Cek Tulisan',
+                            '• Tekan tombol "Cek Tulisan" untuk mengecek hasil.\n'
+                                '• Sistem akan mengenali huruf hijaiyah.\n'
+                                '• Hasil menampilkan huruf dan tingkat akurasi.',
+                          ),
+                          const SizedBox(height: 12),
+                          _buildHelpItem(
+                            'Menu',
+                            '• Kembali ke halaman utama aplikasi.',
+                          ),
+                          const SizedBox(height: 12),
+                          _buildHelpItem(
+                            'Tips',
+                            '• Tulis huruf dengan jelas.\n'
+                                '• Gunakan gaya kaligrafi untuk hasil lebih bagus.\n'
+                                '• Latihan berulang agar semakin akurat.',
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-
-                const Icon(
-                  Icons.keyboard_arrow_up,
-                  size: 20,
-                  color: Colors.black45,
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Mengerti',
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF4A8C40),
+                  const Icon(
+                    Icons.keyboard_arrow_up,
+                    size: 20,
+                    color: Colors.black45,
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      );
-    },
-  );
-}
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Mengerti',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF4A8C40),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Widget _buildHelpItem(String title, String description) {
     return Column(
@@ -462,7 +455,6 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          // Background Image
           Positioned.fill(
             child: Image.asset(
               'assets/images/bg.png',
@@ -473,7 +465,6 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
           ),
           Positioned.fill(
               child: Container(color: Colors.black.withOpacity(0.15))),
-
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -511,8 +502,6 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                                     onTap: _clearCanvas,
                                     tooltip: "Bersihkan"),
                                 const SizedBox(width: 8),
-
-                                // TOMBOL TOGGLE PENSIL / PENGHAPUS (DIGABUNG)
                                 _buildRoundButton(
                                   icon: _currentMode == DrawingMode.pencil
                                       ? Icons.edit
@@ -534,10 +523,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                                       ? "Mode Tulis"
                                       : "Mode Hapus",
                                 ),
-
                                 const SizedBox(width: 8),
-
-                                // TOMBOL SWITCH GAYA PENA (NORMAL / KALIGRAFI)
                                 _buildRoundButton(
                                   icon: _isCalligraphyStyle
                                       ? Icons.history_edu
@@ -546,8 +532,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                                     setState(() {
                                       _isCalligraphyStyle =
                                           !_isCalligraphyStyle;
-                                      _currentMode = DrawingMode
-                                          .pencil; // Kembali ke pensil saat ganti gaya
+                                      _currentMode = DrawingMode.pencil;
                                       _strokeWidth =
                                           _isCalligraphyStyle ? 20.0 : 12.0;
                                     });
@@ -589,7 +574,6 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                             ),
                           ),
                           SizedBox(height: screenHeight * 0.01),
-                          // Area Menggambar
                           Center(
                             child: RepaintBoundary(
                               key: _canvasKey,
@@ -642,8 +626,6 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
               },
             ),
           ),
-
-          // TOMBOL BANTUAN (Pojok Kiri Atas)
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             left: 16,
@@ -698,8 +680,6 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
               ),
             ),
           ),
-
-          // TOMBOL PROFIL (Pojok Kanan Atas)
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             right: 16,
