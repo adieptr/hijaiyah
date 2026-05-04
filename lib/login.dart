@@ -98,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         Text(
                           "Belajar Hijaiyah",
-                          style: GoogleFonts.fredoka(
+                          style: GoogleFonts.poppins(
                             fontSize: 35,
                             fontWeight: FontWeight.bold,
                             foreground: Paint()
@@ -109,7 +109,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         Text(
                           "Belajar Hijaiyah",
-                          style: GoogleFonts.fredoka(
+                          style: GoogleFonts.poppins(
                             fontSize: 35,
                             fontWeight: FontWeight.bold,
                             color: const Color(0xFFC7EFA3),
@@ -212,6 +212,15 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 15),
                     TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: const Color(0xFFFFFFFF)
+                            .withOpacity(0.50),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -222,7 +231,8 @@ class _LoginPageState extends State<LoginPage> {
                       child: Text(
                         'Belum punya akun? Daftar',
                         style: GoogleFonts.poppins(
-                          color: const Color(0xFF386641),
+                          color: const Color(
+                              0xFF00691A),
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                         ),

@@ -140,10 +140,10 @@ class _HalamanTracingState extends State<HalamanTracing> {
   List<Stroke> _strokes = [];
   List<Stroke> _redoStack = [];
   Color _currentColor = const Color(0xFF2E7D32);
-  double _strokeWidth = 25.0; // Default awal kaligrafi
+  double _strokeWidth = 25.0;
   bool _isDrawing = false;
   bool _isEraser = false;
-  bool _isCalligraphyStyle = true; // Toggle untuk gaya brush
+  bool _isCalligraphyStyle = true;
   bool _isCalculating = false;
   String? fullname;
 
@@ -692,14 +692,23 @@ class _HalamanTracingState extends State<HalamanTracing> {
                                     SizedBox.expand(
                                       child: RepaintBoundary(
                                         key: _canvasKey,
-                                        child: GestureDetector(
-                                          onPanStart: _onPanStart,
-                                          onPanUpdate: _onPanUpdate,
-                                          onPanEnd: _onPanEnd,
-                                          child: CustomPaint(
-                                              painter:
-                                                  _DrawingPainter(_strokes),
-                                              size: Size.infinite),
+                                        child: Listener(
+                                          onPointerDown: (_) =>
+                                              setState(() => _isDrawing = true),
+                                          onPointerUp: (_) => setState(
+                                              () => _isDrawing = false),
+                                          onPointerCancel: (_) => setState(
+                                              () => _isDrawing = false),
+                                          child: GestureDetector(
+                                            behavior: HitTestBehavior.opaque,
+                                            onPanStart: _onPanStart,
+                                            onPanUpdate: _onPanUpdate,
+                                            onPanEnd: _onPanEnd,
+                                            child: CustomPaint(
+                                                painter:
+                                                    _DrawingPainter(_strokes),
+                                                size: Size.infinite),
+                                          ),
                                         ),
                                       ),
                                     ),

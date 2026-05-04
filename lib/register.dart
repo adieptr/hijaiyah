@@ -95,7 +95,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       children: [
                         Text(
                           "Belajar Hijaiyah",
-                          style: GoogleFonts.fredoka(
+                          style: GoogleFonts.poppins(
                             fontSize: 35,
                             fontWeight: FontWeight.bold,
                             foreground: Paint()
@@ -106,7 +106,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         Text(
                           "Belajar Hijaiyah",
-                          style: GoogleFonts.fredoka(
+                          style: GoogleFonts.poppins(
                             fontSize: 35,
                             fontWeight: FontWeight.bold,
                             color: const Color(0xFFC7EFA3),
@@ -207,11 +207,24 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 15),
                     TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor:
+                            const Color(0xFFFFFFFF).withOpacity(0.50),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        side: const BorderSide(
+                          color: Color.fromARGB(0, 110, 220, 104),
+                          width: 1,
+                        ),
+                      ),
                       onPressed: () => Navigator.pop(context),
                       child: Text(
                         'Sudah punya akun? Masuk',
                         style: GoogleFonts.poppins(
-                          color: const Color(0xFF386641),
+                          color: const Color(0xFF00691A),
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
                         ),

@@ -12,7 +12,6 @@ import 'dart:math' as math;
 
 enum DrawingMode { pencil, eraser }
 
-// Model diperbarui: Menambahkan isCalligraphy untuk menentukan gaya lukisan per stroke
 class Stroke {
   final List<Offset> points;
   final Color color;
@@ -39,7 +38,6 @@ class _DrawingPainter extends CustomPainter {
     for (var stroke in strokes) {
       if (stroke.points.isEmpty) continue;
 
-      // Jika mode penghapus
       if (stroke.mode == DrawingMode.eraser) {
         final eraserPaint = Paint()
           ..color = stroke.color
@@ -49,7 +47,6 @@ class _DrawingPainter extends CustomPainter {
           ..strokeWidth = stroke.width;
 
         if (stroke.points.length == 1) {
-          // Mengizinkan hapusan titik tunggal
           canvas.drawCircle(stroke.points.first, stroke.width / 2,
               eraserPaint..style = PaintingStyle.fill);
         } else {
@@ -544,7 +541,7 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                               ],
                             ),
                           ),
-                          // Slider Tebal Brush
+                          
                           Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 24.0),
@@ -593,12 +590,24 @@ class _HalamanLatihanState extends State<HalamanLatihan> {
                                     )
                                   ],
                                 ),
-                                child: GestureDetector(
-                                  onPanStart: _onPanStart,
-                                  onPanUpdate: _onPanUpdate,
-                                  onPanEnd: _onPanEnd,
-                                  child: CustomPaint(
-                                    painter: _DrawingPainter(_strokes),
+                                child: Listener(
+                                  onPointerDown: (_) {
+                                    setState(() => _isDrawing = true);
+                                  },
+                                  onPointerUp: (_) {
+                                    setState(() => _isDrawing = false);
+                                  },
+                                  onPointerCancel: (_) {
+                                    setState(() => _isDrawing = false);
+                                  },
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.opaque,
+                                    onPanStart: _onPanStart,
+                                    onPanUpdate: _onPanUpdate,
+                                    onPanEnd: _onPanEnd,
+                                    child: CustomPaint(
+                                      painter: _DrawingPainter(_strokes),
+                                    ),
                                   ),
                                 ),
                               ),
